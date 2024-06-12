@@ -27,7 +27,11 @@ python3 -V (check if python3 is now version 3.7.5)
 
 # To install flwr 0.19.0 in the venv  
 check if pip is install, if not we use “sudo apt install python3-pip”  
-if “pip install flwr==0.19.0” doesn’t work and prints “No module named ‘pip’, run “python3 -m ensurepip --upgrade”  
+if “pip install flwr==0.19.0” doesn’t work and prints “No module named ‘pip’, run “python3 -m ensurepip --upgrade”
+If “ModuleNotFoundError: No module named 'pip._internal'”
+1. run python3 -m pip --version to see if you have pip installed.
+2. if yes, run python3 -m pip install --upgrade pip.
+3. if no, run sudo apt-get install python3-pip, and do it again
 If you have encounter issues of “ensurepip not found”, use “sudo apt-get install python3.7-venv”  
 If you have encounter issues of “failed building wheel for grpcio”  
 Try  
@@ -47,6 +51,7 @@ To access the venv in FL_Project
 cd FL_Project  
 source Project_env/bin/activate  
 
+If you get "zsh: segmentation fault python client.py" when running two or more clients, switch to "kenny" file and try the code there
 
 ## References:  
 
