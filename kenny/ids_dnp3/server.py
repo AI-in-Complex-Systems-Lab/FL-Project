@@ -2,42 +2,43 @@ import argparse
 import ipaddress
 import os
 import sys
-
 from typing import Dict
-
 import numpy as np
 import pandas as pd
-
 from sklearn.metrics import f1_score
 from sklearn.preprocessing import StandardScaler
-
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import InputLayer, Dense, Dropout
 from tensorflow.keras.utils import to_categorical
-
 import flwr as fl
-
+from colorama import Fore, Back, Style
 
 def fit_round(server_round: int) -> Dict:
-	"""Send round number to client."""
-	return {"server_round": server_round}
+    """Send round number to client."""
+    return {"server_round": server_round}
 
 def get_evaluate_fn(model: Sequential):
-	"""Return an evaluation function for server-side evaluation."""
+    """Return an evaluation function for server-side evaluation."""
 
-	def evaluate(
-		server_round: int,
-		parameters: fl.common.NDArrays,
-		config: Dict[str, fl.common.Scalar],
-	):
-		# Update model with the latest parameters
-		model.set_weights(parameters)
-		loss, accuracy = model.evaluate(X_test_scaled, y_test_cat)
-		f1 = f1_score(y_test, np.argmax(model.predict(X_test_scaled), axis=1), average='weighted')
+    def evaluate(
+        server_round: int,
+        parameters: fl.common.NDArrays,
+        config: Dict[str, fl.common.Scalar],
+    ):
+        print(f"{Fore.CYAN}Starting evaluation...{Style.RESET_ALL}")
+        # Update model with the latest parameters
+        model.set_weights(parameters)
+        print(f"{Fore.CYAN}Model weights set.{Style.RESET_ALL}")
 
-		return loss, {"accuracy": accuracy, "f1-score": f1}
+        loss, accuracy = model.evaluate(X_test_scaled, y_test_cat, verbose=0)
+        print(f"{Fore.CYAN}Evaluation done.{Style.RESET_ALL}")
 
-	return evaluate
+        f1 = f1_score(y_test, np.argmax(model.predict(X_test_scaled), axis=1), average='weighted')
+        print(f"{Fore.CYAN}F1-score computed.{Style.RESET_ALL}")
+
+        return loss, {"accuracy": accuracy, "f1-score": f1}
+
+    return evaluate
 
 # Define the base directory as the current directory of the script
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -45,64 +46,73 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 ids_dnp3_federated_datasets_path = os.path.join(base_dir, 'datasets', 'federated_datasets')
 
 if __name__ == "__main__" :
-	parser = argparse.ArgumentParser(description='Flower aggregator server implementation')
-	parser.add_argument("-a", "--address", help="IP address", default="0.0.0.0")
-	parser.add_argument("-p", "--port", help="Serving port", default=8080, type=int)
-	parser.add_argument("-r", "--rounds", help="Number of training and aggregation rounds", default=20, type=int)
-	parser.add_argument("-d", "--dataset", help="dataset directory", default=ids_dnp3_federated_datasets_path)
-	args = parser.parse_args()
+    parser = argparse.ArgumentParser(description='Flower aggregator server implementation')
+    parser.add_argument("-a", "--address", help="IP address", default="0.0.0.0")
+    parser.add_argument("-p", "--port", help="Serving port", default=8080, type=int)
+    parser.add_argument("-r", "--rounds", help="Number of training and aggregation rounds", default=20, type=int)
+    parser.add_argument("-d", "--dataset", help="dataset directory", default=ids_dnp3_federated_datasets_path)
+    args = parser.parse_args()
 
-	try:
-		ipaddress.ip_address(args.address)
-	except ValueError:
-		sys.exit(f"Wrong IP address: {args.address}")
-	if args.port < 0 or args.port > 65535:
-		sys.exit(f"Wrong serving port: {args.port}")
-	if args.rounds < 0:
-		sys.exit(f"Wrong number of rounds: {args.rounds}")
-	if not os.path.isdir(args.dataset):
-		sys.exit(f"Wrong path to directory with datasets: {args.dataset}")
+    try:
+        ipaddress.ip_address(args.address)
+    except ValueError:
+        sys.exit(f"{Fore.RED}Wrong IP address: {args.address}{Style.RESET_ALL}")
+    if args.port < 0 or args.port > 65535:
+        sys.exit(f"{Fore.RED}Wrong serving port: {args.port}{Style.RESET_ALL}")
+    if args.rounds < 0:
+        sys.exit(f"{Fore.RED}Wrong number of rounds: {args.rounds}{Style.RESET_ALL}")
+    if not os.path.isdir(args.dataset):
+        sys.exit(f"{Fore.RED}Wrong path to directory with datasets: {args.dataset}{Style.RESET_ALL}")
 
+    # Load train and test data
+    print(f"{Fore.CYAN}Loading train and test data...{Style.RESET_ALL}")
+    df_train = pd.read_csv(os.path.join(args.dataset, 'train_data.csv'))
+    df_test = pd.read_csv(os.path.join(args.dataset, 'test_data.csv'))
+    print(f"{Fore.CYAN}Data loaded.{Style.RESET_ALL}")
 
-	# Load train and test data
-	df_train = pd.read_csv(os.path.join(args.dataset, 'train_data.csv'))
-	df_test = pd.read_csv(os.path.join(args.dataset, 'test_data.csv'))
+    # Convert data to arrays
+    X_train = df_train.drop(['y'], axis=1).to_numpy()
+    X_test = df_test.drop(['y'], axis=1).to_numpy()
 
-	# Convert data to arrays
-	X_train = df_train.drop(['y'], axis=1).to_numpy()
-	X_test = df_test.drop(['y'], axis=1).to_numpy()
+    # Convert test data labels to one-hot-vectors
+    y_test = df_test['y'].to_numpy()
+    y_test_cat = to_categorical(y_test)
 
-	# Convert test data labels to one-hot-vectors
-	y_test = df_test['y'].to_numpy()
-	y_test_cat = to_categorical(y_test)
+    # Scale test data
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    print(f"{Fore.CYAN}Data scaled.{Style.RESET_ALL}")
 
-	# Scale test data
-	scaler = StandardScaler()
-	scaler.fit(X_train)
-	X_test_scaled = scaler.transform(X_test)
+    # Define a MLP model
+    model = Sequential([
+        InputLayer(input_shape=(X_test_scaled.shape[1],)),
+        Dense(units=50, activation='relu'),
+        Dropout(0.2),
+        Dense(units=y_test_cat.shape[1], activation='softmax')
+    ])
 
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    print(f"{Fore.CYAN}Model compiled.{Style.RESET_ALL}")
 
-	# Define a MLP model
-	model = Sequential([
-		InputLayer(input_shape=(X_test_scaled.shape[1],)),
-		Dense(units=50, activation='relu'),
-		Dropout(0.2),
-		Dense(units=y_test_cat.shape[1], activation='softmax')
-	])
+    # Define a FL strategy
+    strategy = fl.server.strategy.FedAvg(
+        min_available_clients=3,
+        evaluate_fn=get_evaluate_fn(model),
+        on_fit_config_fn=fit_round,
+    )
 
-	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    # Construct the server address
+    server_address = f"{args.address}:{args.port}"
+    
+    # Print the server address
+    print(f"{Fore.CYAN}Starting Flower server at {args.address}:{args.port}{Style.RESET_ALL}")
 
-
-	# Define a FL strategy
-	strategy = fl.server.strategy.FedAvg(
-		min_available_clients=3,
-		evaluate_fn=get_evaluate_fn(model),
-		on_fit_config_fn=fit_round,
-	)
-
-	# Start Flower aggregation and distribution server
-	fl.server.start_server(
-		server_address=f"{args.address}:{args.port}",
-		strategy=strategy,
-		config=fl.server.ServerConfig(num_rounds=args.rounds),
-	)
+    # Start Flower aggregation and distribution server
+    fl.server.start_server(
+        #server_address=f"{args.address}:{args.port}",
+        server_address="localhost:8080",
+        strategy=strategy,
+        config=fl.server.ServerConfig(num_rounds=args.rounds),
+    )
+    print(f"{Fore.CYAN}All process finished.{Style.RESET_ALL}")
