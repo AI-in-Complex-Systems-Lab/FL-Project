@@ -39,13 +39,17 @@ def get_evaluate_fn(model: Sequential):
 
 	return evaluate
 
+# Define the base directory as the current directory of the script
+base_dir = os.path.dirname(os.path.abspath(__file__))
+# Construct the path to ids_dnp3 directory
+ids_dnp3_federated_datasets_path = os.path.join(base_dir, 'datasets', 'federated_datasets')
 
 if __name__ == "__main__" :
 	parser = argparse.ArgumentParser(description='Flower aggregator server implementation')
 	parser.add_argument("-a", "--address", help="IP address", default="0.0.0.0")
-	parser.add_argument("-p", "--port", help="Serving port", default=8000, type=int)
+	parser.add_argument("-p", "--port", help="Serving port", default=8080, type=int)
 	parser.add_argument("-r", "--rounds", help="Number of training and aggregation rounds", default=20, type=int)
-	parser.add_argument("-d", "--dataset", help="dataset directory", default="/Users/guest1/Desktop/FL-Project/kenny/ids_dnp3/datasets/federated_datasets")
+	parser.add_argument("-d", "--dataset", help="dataset directory", default=ids_dnp3_federated_datasets_path)
 	args = parser.parse_args()
 
 	try:

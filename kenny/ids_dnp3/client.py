@@ -18,13 +18,18 @@ from tensorflow.keras.callbacks import EarlyStopping
 
 import flwr as fl
 
+# Define the base directory as the current directory of the script
+base_dir = os.path.dirname(os.path.abspath(__file__))
+# Construct the path to ids_dnp3 directory
+ids_dnp3_federated_datasets_path = os.path.join(base_dir, 'datasets', 'federated_datasets')
+
 
 if __name__ == "__main__" :
 	parser = argparse.ArgumentParser(description='Flower straggler / client implementation')
 	parser.add_argument("-a", "--address", help="Aggregator server's IP address", default="127.0.0.1")
-	parser.add_argument("-p", "--port", help="Aggregator server's serving port", default=8000, type=int)
-	parser.add_argument("-i", "--id", help="client ID", default=0, type=int)
-	parser.add_argument("-d", "--dataset", help="dataset directory", default="/Users/guest1/Desktop/FL-Project/kenny/ids_dnp3/datasets/federated_datasets")
+	parser.add_argument("-p", "--port", help="Aggregator server's serving port", default=8080, type=int)
+	parser.add_argument("-i", "--id", help="client ID", default=1, type=int)
+	parser.add_argument("-d", "--dataset", help="dataset directory", default=ids_dnp3_federated_datasets_path)
 	args = parser.parse_args()
 
 	try:
@@ -41,7 +46,7 @@ if __name__ == "__main__" :
 
 
 	# Load train and test data
-	df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_{args.id + 1}.csv'))
+	df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_{args.id}.csv'))
 	df_test = pd.read_csv(os.path.join(args.dataset, 'test_data.csv'))
 
 	# Split data into X and y
