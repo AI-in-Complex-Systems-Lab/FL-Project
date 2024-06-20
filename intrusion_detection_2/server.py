@@ -32,7 +32,7 @@ def get_evaluate_fn(model: Sequential):
 	):
 		# Update model with the latest parameters
 		model.set_weights(parameters)
-		loss, accuracy = model.evaluate(X_test_scaled, y_test_cat)
+		loss, accuracy = model.evaluate(X_test_scaled, y_test_cat, verbose=0)
 		f1 = f1_score(y_test, np.argmax(model.predict(X_test_scaled), axis=1), average='weighted')
 
 		return loss, {"accuracy": accuracy, "f1-score": f1}
@@ -42,8 +42,8 @@ def get_evaluate_fn(model: Sequential):
 
 if __name__ == "__main__" :
 	parser = argparse.ArgumentParser(description='Flower aggregator server implementation')
-	parser.add_argument("-a", "--address", help="IP address", default="127.0.0.1")
-	parser.add_argument("-p", "--port", help="Serving port", default=8000, type=int)
+	parser.add_argument("-a", "--address", help="IP address", default="0.0.0.0")
+	parser.add_argument("-p", "--port", help="Serving port", default=8080, type=int)
 	parser.add_argument("-r", "--rounds", help="Number of training and aggregation rounds", default=20, type=int)
 	parser.add_argument("-d", "--dataset", help="dataset directory", default="datasets/federated_datasets/")
 	args = parser.parse_args()
@@ -91,14 +91,16 @@ if __name__ == "__main__" :
 
 	# Define a FL strategy
 	strategy = fl.server.strategy.FedAvg(
-		min_available_clients=1,
+		min_available_clients=3,
 		evaluate_fn=get_evaluate_fn(model),
 		on_fit_config_fn=fit_round,
 	)
+	
+server_address = f"{args.address}:{args.port}"
 
 	# Start Flower aggregation and distribution server
-	fl.server.start_server(
-		server_address=f"{args.address}:{args.port}",
+fl.server.start_server(
+		server_address="localhost:8080",
 		strategy=strategy,
 		config=fl.server.ServerConfig(num_rounds=args.rounds),
 	)

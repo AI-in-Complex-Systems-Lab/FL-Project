@@ -22,7 +22,7 @@ import flwr as fl
 if __name__ == "__main__" :
 	parser = argparse.ArgumentParser(description='Flower straggler / client implementation')
 	parser.add_argument("-a", "--address", help="Aggregator server's IP address", default="127.0.0.1")
-	parser.add_argument("-p", "--port", help="Aggregator server's serving port", default=8000, type=int)
+	parser.add_argument("-p", "--port", help="Aggregator server's serving port", default=8080, type=int)
 	parser.add_argument("-i", "--id", help="client ID", default=1, type=int)
 	parser.add_argument("-d", "--dataset", help="dataset directory", default="datasets/federated_datasets/")
 	args = parser.parse_args()
@@ -81,20 +81,19 @@ if __name__ == "__main__" :
 
 		def fit(self, parameters, config):
 			model.set_weights(parameters)
-			#print()
 			model.fit(X_train_scaled, y_train_cat, epochs=100, validation_data=(X_test_scaled, y_test_cat), batch_size=64, callbacks=[early_stop], verbose=0)
 			print(f"Training finished for round {config['server_round']}")
 			return model.get_weights(), len(X_train_scaled), {}
 
 		def evaluate(self, parameters: fl.common.NDArrays, config: Dict[str, fl.common.Scalar],):
 			model.set_weights(parameters)
-			loss, accuracy = model.evaluate(X_test_scaled, y_test_cat)
+			loss, accuracy = model.evaluate(X_test_scaled, y_test_cat, verbose=0)
 			f1 = f1_score(y_test, np.argmax(model.predict(X_test_scaled), axis=1), average='weighted')
 			return loss, len(X_test_scaled), {"accuracy": accuracy, "f1-score": f1}
 
 
 	# Start Flower straggler and initiate communication with the Flower aggretation server
 	fl.client.start_numpy_client(
-		server_address=f"{args.address}:{args.port}",
+		server_address="localhost:8080",
 		client=Client()
 	)

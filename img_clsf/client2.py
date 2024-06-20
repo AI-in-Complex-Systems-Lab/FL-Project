@@ -66,7 +66,7 @@ def test(net, testloader):
             loss += criterion(outputs, labels).item()
             correct += (torch.max(outputs.data, 1)[1] == labels).sum().item()
     accuracy = correct / len(testloader.dataset)
-    return loss, accuracy
+    return loss / len(testloader.dataset), accuracy
 
 
 def load_data(partition_id):
@@ -98,7 +98,7 @@ def load_data(partition_id):
 parser = argparse.ArgumentParser(description="Flower")
 parser.add_argument(
     "--partition-id",
-    choices=[0, 1],
+    choices=[0, 1, 2, 3],
     default=0,
     type=int,
     help="Partition of the dataset divided into 2 iid partitions created artificially.",
@@ -128,7 +128,7 @@ class FlowerClient(NumPyClient):
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
         loss, accuracy = test(net, testloader)
-        return loss, len(testloader.dataset), {"accuracy": accuracy}
+        return loss / len(testloader.dataset), len(testloader.dataset), {"accuracy": accuracy}
 
 
 def client_fn(cid: str):

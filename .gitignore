@@ -2,4 +2,8 @@ data/
 __pycache__/
 cifar-10-batches-py/
 cifar-10-python.tar.gz/
+datasets/
+.ipynb_checkpoints/
+Balanced_IEC104_Train_Test_CSV_Files/
+federated_datasets/
 *.tar.gz

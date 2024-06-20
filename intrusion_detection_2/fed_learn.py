@@ -46,14 +46,19 @@ def extract(archive, target_dir):
 
 base_data_dir = './datasets'
 
-if not os.path.isdir(os.path.join(base_data_dir, 'Balanced_IEC104_Train_Test_CSV_Files')):
-    filename = 'Balanced_IEC104_Train_Test_CSV_Files.7z'
+if not os.path.isdir(os.path.join(base_data_dir, 'Training_Testing_Balanced_CSV_Files')):
+    filename = 'DNP3_Intrusion_Detection_Dataset_Final.7z'
     
     if not py7zr.is_7zfile(filename):
-        url = ('https://zenodo.org/records/7108614/files/Balanced_IEC104_Train_Test_CSV_Files.7z?download=1')
+        url = ('https://zenodo.org/records/7348493/files/DNP3_Intrusion_Detection_Dataset_Final.7z?download=1')
         download(url, filename)
     
     extract(filename, base_data_dir)
+
+    innerDirs = os.listdir(base_data_dir)
+    for dir in innerDirs:
+        if (re.search('2020*', dir)):
+            shutil.rmtree(os.path.join(base_data_dir, dir))
     
     os.remove(os.path.join('.', filename))
 
@@ -64,48 +69,41 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-pd.set_option('mode.chained_assignment', None)  # default='warn'
-
-# If you're using IPython or Jupyter Notebook and want plots to be displayed inline:
-plt.ion()
-
+pd.set_option('future.no_silent_downcasting', True)
 
 tp = 'cic'      # Type: dataset type (CICFlowMeter or Custom Python parser), choose between 'cic' and 'custom'
-tm = 180        # Timeout: data flow timeout, choose a value from the following list [15, 30, 60, 90, 120, 180]
-n_workers = 3 
-
-
+n_workers = 3
 
 assert tp in ('cic', 'custom'), "Wrong dataset type, choose between 'cic' and 'custom'"
-assert tm in (15, 30, 60, 90, 120, 180), "Wrong time, choose a value from the following list [15, 30, 60, 90, 120, 180]"
 assert n_workers in (3, 4, 5), "Wrong number of workers, choose between 3 and 5"
 
+path = os.path.join(base_data_dir, 'Training_Testing_Balanced_CSV_Files')
 
+if tp == 'cic':
+    dataset = f'CICFlowMeter'
+else:
+    dataset = 'Custom_DNP3_Parser'
 
-path = os.path.join(base_data_dir, 'Balanced_IEC104_Train_Test_CSV_Files/iec104_train_test_csvs')
-dataset = f'tests_{tp}_{tm}'
-
-if 'cic' in dataset:
+if 'CIC' in dataset:
     n = dataset.split('_')[-1]
-    train_csv = os.path.join(os.path.join(path, dataset), f'train_{tm}_cicflow.csv')
-    test_csv = os.path.join(os.path.join(path, dataset), f'test_{tm}_cicflow.csv')
-elif 'custom' in dataset:
+    train_csv = os.path.join(os.path.join(path, dataset), f'CICFlowMeter_Training_Balanced.csv')
+    test_csv = os.path.join(os.path.join(path, dataset), f'CICFlowMeter_Testing_Balanced.csv')
+elif 'Custom' in dataset:
     n = dataset.split('_')
-    train_csv = os.path.join(os.path.join(path, dataset), f'train_{tm}_custom_script.csv')
-    test_csv = os.path.join(os.path.join(path, dataset), f'test_{tm}_custom_script.csv')
+    train_csv = os.path.join(os.path.join(path, dataset), f'Custom_DNP3_Parser_Training_Balanced.csv')
+    test_csv = os.path.join(os.path.join(path, dataset), f'Custom_DNP3_Parser_Testing_Balanced.csv')
 else:
     raise Exception("Wrong dataset")
 
-df_train = pd.read_csv(train_csv)
-df_test = pd.read_csv(train_csv)
-
+df_train = pd.read_csv(train_csv, sep=r'\s*,\s*', header=0, 
+                       encoding='ascii', engine='python')
+df_test = pd.read_csv(train_csv, sep=r'\s*,\s*', header=0, 
+                      encoding='ascii', engine='python')
 
 df_train.info()
 
 
 df_test.info()
-
-
 
 
 df_train['Label'] = df_train['Label'].str.lower()
@@ -117,20 +115,13 @@ unique_codes = list(df_train.Label.astype('category').cat.codes.unique())
 mapping = dict(zip(unique_labels, unique_codes))
 mapping_inv = dict(zip(unique_codes, unique_labels))
 
-
 print(mapping)
 
 df_train['Label'] = df_train['Label'].astype('category').cat.rename_categories(mapping)
 df_test['Label'] = df_test['Label'].astype('category').cat.rename_categories(mapping)
 
-if tp == 'cic':
-    train = df_train.iloc[:,7:]
-    test = df_test.iloc[:,7:]
-else:
-    train = df_train
-    test = df_test
-
-
+train = df_train.iloc[:,9:]
+test = df_test.iloc[:,9:]
 
 train.rename(columns={"Label": "y"}, inplace=True, errors="raise")
 test.rename(columns={"Label": "y"}, inplace=True, errors="raise")
@@ -142,6 +133,7 @@ test.replace([np.inf, -np.inf], np.nan, inplace=True)
 # Drop rows with NaN values
 train.dropna(inplace=True)
 test.dropna(inplace=True)
+
 
 directory = os.path.join(base_data_dir, 'federated_datasets')
 
@@ -156,11 +148,13 @@ except OSError as e:
         train.to_csv(os.path.join(directory, 'train_data.csv'), index=False)
         test.to_csv(os.path.join(directory, 'test_data.csv'), index=False)
 
+
 n_samples = int(train.shape[0] / n_workers)
 
 assert type(n_workers) == int, "Non-int number of workers"
 assert n_workers >= 3 and n_workers <= df_train.shape[0], "At least 3 workers and at most as many workers as the number of samples are allowed"
 assert n_samples > 0, "Each worker must be assigned at least one data point"
+
 
 client_data = []
 train_copy = train.copy()
@@ -202,14 +196,14 @@ for i in range(n_workers):
     plt.title('Worker {}'.format(i+1))
     plt.xlabel('#points')
     plt.xlim(xlim)
-    # plt.ylabel('Label')
+    plt.ylabel('Label')
     plt.ylim(ylim)
     plt.yticks(yticks, labels=yticks_labels)
     
     # plot values on top of bars
     for key in plot_data:
         if len(plot_data[key]) > 0:
-            plt.text(len(plot_data[key])+4, int(key)-0.1, str(len(plot_data[key])), ha='center')
+            plt.text(len(plot_data[key])+8, int(key)-0.1, str(len(plot_data[key])), ha='center')
     
     for j in range(min(unique_codes),max(unique_codes)+1):
         plt.hist(
@@ -218,5 +212,4 @@ for i in range(n_workers):
             bins=[k-0.5 for k in range(min(unique_codes),max(unique_codes)+2)],
             orientation='horizontal'
         )
-
 plt.show()
