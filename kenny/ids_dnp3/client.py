@@ -12,7 +12,7 @@ from tensorflow.keras.layers import InputLayer, Dense, Dropout
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping
 import flwr as fl
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 
 # Define the base directory as the current directory of the script
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -40,10 +40,10 @@ if __name__ == "__main__":
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
     # Load train and test data
-    print(f"{Fore.CYAN}Loading train and test data...{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}Client loading train and test data...{Style.RESET_ALL}")
     df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_{args.id}.csv'))
     df_test = pd.read_csv(os.path.join(args.dataset, 'test_data.csv'))
-    print(f"{Fore.CYAN}Data loaded.{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}Client data loaded.{Style.RESET_ALL}")
 
     # Split data into X and y
     X_train = df_train.drop(columns=['y']).to_numpy()
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
-    print(f"{Fore.CYAN}Data scaled.{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}Client data scaled.{Style.RESET_ALL}")
 
     # Use one-hot-vectors for label representation
     y_train_cat = to_categorical(y_train)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     early_stop = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=10)
-    print(f"{Fore.CYAN}Model compiled.{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}Client model compiled.{Style.RESET_ALL}")
 
     # Define Flower client
     class Client(fl.client.NumPyClient):
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
         def fit(self, parameters, config):
             model.set_weights(parameters)
-            print(f"{Fore.CYAN}Starting training for round {config['server_round']}...{Style.RESET_ALL}")
+            print(f"{Fore.CYAN}Client starting training for round {config['server_round']}...{Style.RESET_ALL}")
             model.fit(
                 X_train_scaled, y_train_cat,
                 epochs=100,
@@ -89,15 +89,15 @@ if __name__ == "__main__":
                 callbacks=[early_stop],
                 verbose=0
             )
-            print(f"{Fore.CYAN}Training finished for round {config['server_round']}{Style.RESET_ALL}")
+            print(f"{Fore.CYAN}Client training finished for round {config['server_round']}{Style.RESET_ALL}")
             return model.get_weights(), len(X_train_scaled), {}
 
         def evaluate(self, parameters: fl.common.NDArrays, config: Dict[str, fl.common.Scalar]):
-            print(f"{Fore.CYAN}Starting evaluation...{Style.RESET_ALL}")
+            print(f"{Fore.CYAN}Client starting evaluation...{Style.RESET_ALL}")
             model.set_weights(parameters)
             loss, accuracy = model.evaluate(X_test_scaled, y_test_cat, verbose=0)
             f1 = f1_score(y_test, np.argmax(model.predict(X_test_scaled), axis=1), average='weighted')
-            print(f"{Fore.CYAN}Evaluation done.{Style.RESET_ALL}")
+            print(f"{Fore.CYAN}Client evaluation done.{Style.RESET_ALL}")
             return loss, len(X_test_scaled), {"accuracy": accuracy, "f1-score": f1}
 
     # Start Flower straggler and initiate communication with the Flower aggregation server

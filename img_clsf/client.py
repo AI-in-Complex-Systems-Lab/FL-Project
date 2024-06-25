@@ -1,9 +1,6 @@
 from collections import OrderedDict
-
-
 import flwr as fl 
 import torch
-
 from centralized import load_data, load_model, train, test
 
 def set_parameters(model, parameters):
@@ -11,7 +8,6 @@ def set_parameters(model, parameters):
     state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
     model.load_state_dict(state_dict, strict=True)
     
-
 net = load_model()
 trainloader, testloader = load_data()
 
@@ -29,7 +25,13 @@ class FlowerClient(fl.client.NumPyClient):
         loss, accuracy = test(net, testloader)
         return float(loss), len(testloader.dataset), {"accuracy": accuracy}
     
+ip_address = '169.226.53.20'  # here you should write the server ip-address
+server_addr=ip_address + ':8080'
+
+# Print the server address
+print(f"Starting Flower server at {server_addr}")
+
 fl.client.start_numpy_client(
-    server_address="127.0.0.1:8080",
+    server_address=server_addr,
     client=FlowerClient(),
 )

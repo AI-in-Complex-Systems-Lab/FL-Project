@@ -11,7 +11,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import InputLayer, Dense, Dropout
 from tensorflow.keras.utils import to_categorical
 import flwr as fl
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
+
 
 def fit_round(server_round: int) -> Dict:
     """Send round number to client."""
@@ -25,16 +26,16 @@ def get_evaluate_fn(model: Sequential):
         parameters: fl.common.NDArrays,
         config: Dict[str, fl.common.Scalar],
     ):
-        print(f"{Fore.CYAN}Starting evaluation...{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}Server starting evaluation...{Style.RESET_ALL}")
         # Update model with the latest parameters
         model.set_weights(parameters)
-        print(f"{Fore.CYAN}Model weights set.{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}Server model weights set.{Style.RESET_ALL}")
 
         loss, accuracy = model.evaluate(X_test_scaled, y_test_cat, verbose=0)
-        print(f"{Fore.CYAN}Evaluation done.{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}Server evaluation done.{Style.RESET_ALL}")
 
         f1 = f1_score(y_test, np.argmax(model.predict(X_test_scaled), axis=1), average='weighted')
-        print(f"{Fore.CYAN}F1-score computed.{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}Server F1-score computed.{Style.RESET_ALL}")
 
         return loss, {"accuracy": accuracy, "f1-score": f1}
 
@@ -65,10 +66,10 @@ if __name__ == "__main__" :
         sys.exit(f"{Fore.RED}Wrong path to directory with datasets: {args.dataset}{Style.RESET_ALL}")
 
     # Load train and test data
-    print(f"{Fore.CYAN}Loading train and test data...{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}Server loading train and test data...{Style.RESET_ALL}")
     df_train = pd.read_csv(os.path.join(args.dataset, 'train_data.csv'))
     df_test = pd.read_csv(os.path.join(args.dataset, 'test_data.csv'))
-    print(f"{Fore.CYAN}Data loaded.{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}Server data loaded.{Style.RESET_ALL}")
 
     # Convert data to arrays
     X_train = df_train.drop(['y'], axis=1).to_numpy()
@@ -82,7 +83,7 @@ if __name__ == "__main__" :
     scaler = StandardScaler()
     scaler.fit(X_train)
     X_test_scaled = scaler.transform(X_test)
-    print(f"{Fore.CYAN}Data scaled.{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}Server data scaled.{Style.RESET_ALL}")
 
     # Define a MLP model
     model = Sequential([
@@ -93,7 +94,7 @@ if __name__ == "__main__" :
     ])
 
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    print(f"{Fore.CYAN}Model compiled.{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}Server model compiled.{Style.RESET_ALL}")
 
     # Define a FL strategy
     strategy = fl.server.strategy.FedAvg(
