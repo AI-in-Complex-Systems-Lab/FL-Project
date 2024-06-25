@@ -1,5 +1,6 @@
 import flwr as fl
 import socket
+import json
 
 def get_ip_address():
     try:
@@ -19,6 +20,11 @@ def weighted_average(metrics):
 
 ip_address = get_ip_address()
 server_addr=ip_address + ':8080' 
+
+# Write server address to a config file
+config = {"server_address": server_addr}
+with open("server_config.json", "w") as f:
+    json.dump(config, f)
 
 # Print the server address
 print(f"Starting Flower server at {server_addr}")
