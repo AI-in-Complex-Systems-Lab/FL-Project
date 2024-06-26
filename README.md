@@ -21,7 +21,7 @@
 - sudo update-alternatives --config python3
 - 2
 - python3 -V (check if python3 is now version 3.8.0)
-- Python3 -m pip install –upgrade pip (make sure pip is 24.1)
+- python3 -m pip install --upgrade pip (make sure pip is 24.1)
 - pip install flwr
 
 - To run img_clsf,
@@ -51,7 +51,7 @@
 - run python3 -m pip --version to see if you have pip installed.
 - if yes, run python3 -m pip install --upgrade pip.
 - if no, run sudo apt-get install python3-pip, and do it again
-- If you have encounter issues of “ensurepip not found”, use “sudo apt-get install python3.7-venv”
+- If you have encounter issues of “ensurepip not found”, use “sudo apt-get install python3.8-venv”
 - If you have encounter issues of “failed building wheel for grpcio”, try
 - pip3 install --upgrade pip (from 9.0.1 to 24.0)
 - python3 -m pip install --upgrade setuptools (from 39.0.1 to 68.0.0)
