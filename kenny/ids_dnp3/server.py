@@ -12,7 +12,18 @@ from tensorflow.keras.layers import InputLayer, Dense, Dropout
 from tensorflow.keras.utils import to_categorical
 import flwr as fl
 from colorama import Fore, Style
+import socket
+import json
 
+def get_ip_address():
+    try:
+        # Connect to an external server to determine the local IP address used for that connection
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))  # Google's public DNS server
+            ip_address = s.getsockname()[0]
+    except Exception:
+        ip_address = '127.0.0.1'  # Fallback to localhost
+    return ip_address
 
 def fit_round(server_round: int) -> Dict:
     """Send round number to client."""
@@ -48,9 +59,9 @@ ids_dnp3_federated_datasets_path = os.path.join(base_dir, 'datasets', 'federated
 
 if __name__ == "__main__" :
     parser = argparse.ArgumentParser(description='Flower aggregator server implementation')
-    parser.add_argument("-a", "--address", help="IP address", default="0.0.0.0")
+    parser.add_argument("-a", "--address", help="IP address", default=get_ip_address())
     parser.add_argument("-p", "--port", help="Serving port", default=8080, type=int)
-    parser.add_argument("-r", "--rounds", help="Number of training and aggregation rounds", default=20, type=int)
+    parser.add_argument("-r", "--rounds", help="Number of training and aggregation rounds", default=100, type=int)
     parser.add_argument("-d", "--dataset", help="dataset directory", default=ids_dnp3_federated_datasets_path)
     args = parser.parse_args()
 
@@ -109,10 +120,16 @@ if __name__ == "__main__" :
     # Print the server address
     print(f"{Fore.CYAN}Starting Flower server at {args.address}:{args.port}{Style.RESET_ALL}")
 
+    server_addr = f"{args.address}:{args.port}"
+
+    # Write server address to a config file
+    config = {"ip_address": args.address,"server_address": server_addr}
+    with open("server_config.json", "w") as f:
+     json.dump(config, f)
+
     # Start Flower aggregation and distribution server
     fl.server.start_server(
-        #server_address=f"{args.address}:{args.port}",
-        server_address="localhost:8080",
+        server_address=f"{args.address}:{args.port}",
         strategy=strategy,
         config=fl.server.ServerConfig(num_rounds=args.rounds),
     )

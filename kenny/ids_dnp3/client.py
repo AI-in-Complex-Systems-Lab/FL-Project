@@ -13,15 +13,26 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping
 import flwr as fl
 from colorama import Fore, Style
+import json
 
 # Define the base directory as the current directory of the script
 base_dir = os.path.dirname(os.path.abspath(__file__))
 # Construct the path to ids_dnp3 directory
 ids_dnp3_federated_datasets_path = os.path.join(base_dir, 'datasets', 'federated_datasets')
 
+# Read server address from the config file
+with open("server_config.json", "r") as f:
+    config = json.load(f)    
+
+server_addr = config["server_address"]
+
+def get_ip_address_from_json():
+    ip_addr = config["ip_address"]
+    return ip_addr
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Flower straggler / client implementation')
-    parser.add_argument("-a", "--address", help="Aggregator server's IP address", default="127.0.0.1")
+    parser.add_argument("-a", "--address", help="Aggregator server's IP address", default=get_ip_address_from_json())
     parser.add_argument("-p", "--port", help="Aggregator server's serving port", default=8080, type=int)
     parser.add_argument("-i", "--id", help="client ID", default=1, type=int)
     parser.add_argument("-d", "--dataset", help="dataset directory", default=ids_dnp3_federated_datasets_path)
@@ -38,6 +49,8 @@ if __name__ == "__main__":
 
     # Make TensorFlow log less verbose
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+    #print("ip address: ",  get_ip_address_from_json())
 
     # Load train and test data
     print(f"{Fore.CYAN}Client loading train and test data...{Style.RESET_ALL}")
@@ -103,8 +116,7 @@ if __name__ == "__main__":
     # Start Flower straggler and initiate communication with the Flower aggregation server
     print(f"Connecting to server at {args.address}:{args.port}")
     fl.client.start_numpy_client(
-        #server_address=f"{args.address}:{args.port}",
-        server_address="localhost:8080",
+        server_address=f"{args.address}:{args.port}",
         client=Client()
     )
     print(f"{Fore.CYAN}All process finished.{Style.RESET_ALL}")
