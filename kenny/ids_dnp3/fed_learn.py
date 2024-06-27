@@ -8,7 +8,6 @@ import time
 import urllib
 import urllib.request
 
-
 def reporthook(count, block_size, total_size):
     global start_time
     if count == 0:
@@ -59,10 +58,8 @@ if not os.path.isdir(os.path.join(base_data_dir, 'Training_Testing_Balanced_CSV_
     for dir in innerDirs:
         if (re.search('2020*', dir)):
             shutil.rmtree(os.path.join(base_data_dir, dir))
-    
+        
     os.remove(os.path.join('.', filename))
-
-
 
 import collections
 import numpy as np
@@ -72,7 +69,7 @@ from matplotlib import pyplot as plt
 pd.set_option('future.no_silent_downcasting', True)
 
 tp = 'cic'      # Type: dataset type (CICFlowMeter or Custom Python parser), choose between 'cic' and 'custom'
-n_workers = 3
+n_workers = 3   # N: number of federated workers, choose between 3 and 5
 
 assert tp in ('cic', 'custom'), "Wrong dataset type, choose between 'cic' and 'custom'"
 assert n_workers in (3, 4, 5), "Wrong number of workers, choose between 3 and 5"
@@ -102,9 +99,7 @@ df_test = pd.read_csv(train_csv, sep=r'\s*,\s*', header=0,
 
 df_train.info()
 
-
 df_test.info()
-
 
 df_train['Label'] = df_train['Label'].str.lower()
 df_test['Label'] = df_test['Label'].str.lower()
@@ -134,7 +129,6 @@ test.replace([np.inf, -np.inf], np.nan, inplace=True)
 train.dropna(inplace=True)
 test.dropna(inplace=True)
 
-
 directory = os.path.join(base_data_dir, 'federated_datasets')
 
 try:
@@ -148,13 +142,11 @@ except OSError as e:
         train.to_csv(os.path.join(directory, 'train_data.csv'), index=False)
         test.to_csv(os.path.join(directory, 'test_data.csv'), index=False)
 
-
-n_samples = int(train.shape[0] / n_workers)
+        n_samples = int(train.shape[0] / n_workers)
 
 assert type(n_workers) == int, "Non-int number of workers"
 assert n_workers >= 3 and n_workers <= df_train.shape[0], "At least 3 workers and at most as many workers as the number of samples are allowed"
 assert n_samples > 0, "Each worker must be assigned at least one data point"
-
 
 client_data = []
 train_copy = train.copy()
@@ -165,12 +157,10 @@ for i in range(n_workers):
     train_copy.drop(index=sample.index, inplace=True)
     client_data.append(sample)
 
-
 for i in range(n_workers):
-    print(f"Worker {i+1} training data contains {len(client_data[i])} points")
+   print(f"Worker {i+1} training data contains {len(client_data[i])} points")
 
-
-# Number of examples per layer for a sample of clients
+   # Number of examples per layer for a sample of clients
 fig = plt.figure(figsize=(20, 7))
 fig.suptitle('Label Counts for a Sample of Worker Data')
 fig.tight_layout()

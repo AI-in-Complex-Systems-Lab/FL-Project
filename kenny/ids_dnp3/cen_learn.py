@@ -7,14 +7,12 @@ from fed_learn import*
 from sklearn.metrics import f1_score
 from sklearn.preprocessing import StandardScaler
 
-
 scaler = StandardScaler()
 
 X_train = scaler.fit_transform(train.drop(['y'], axis=1).to_numpy())
 y_train = train['y'].to_numpy()
 X_test = scaler.transform(test.drop(['y'], axis=1).to_numpy())
 y_test = test['y'].to_numpy()
-
 
 y_cat_train = to_categorical(y_train)
 y_cat_test = to_categorical(y_test)
@@ -46,4 +44,5 @@ model_loss[['loss','val_loss']].plot()
 plt.show()
 
 print("Loss, Accuracy: ", model.evaluate(X_test, y_cat_test))
+
 print("F1-score: ", f1_score(y_test, np.argmax(model.predict(X_test), axis=1), average='weighted'))
