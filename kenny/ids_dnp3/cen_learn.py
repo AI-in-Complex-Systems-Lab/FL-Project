@@ -2,6 +2,8 @@ import tensorflow as tf
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.utils import to_categorical
 
+from fed_learn import*
+
 from sklearn.metrics import f1_score
 from sklearn.preprocessing import StandardScaler
 
@@ -39,6 +41,8 @@ model.fit(
 
 model_loss = pd.DataFrame(model.history.history)
 model_loss[['loss','val_loss']].plot()
+
+plt.show()
 
 print("Loss, Accuracy: ", model.evaluate(X_test, y_cat_test))
 

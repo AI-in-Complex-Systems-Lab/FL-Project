@@ -6,6 +6,7 @@ import shutil
 import sys
 import time
 import urllib
+import urllib.request
 
 
 def reporthook(count, block_size, total_size):
@@ -58,7 +59,7 @@ if not os.path.isdir(os.path.join(base_data_dir, 'Training_Testing_Balanced_CSV_
     for dir in innerDirs:
         if (re.search('2020*', dir)):
             shutil.rmtree(os.path.join(base_data_dir, dir))
-    
+        
     os.remove(os.path.join('.', filename))
 
     import collections
@@ -204,3 +205,4 @@ for i in range(n_workers):
             bins=[k-0.5 for k in range(min(unique_codes),max(unique_codes)+2)],
             orientation='horizontal'
         )
+        plt.show()
