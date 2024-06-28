@@ -61,7 +61,7 @@ if __name__ == "__main__" :
     parser = argparse.ArgumentParser(description='Flower aggregator server implementation')
     parser.add_argument("-a", "--address", help="IP address", default=get_ip_address())
     parser.add_argument("-p", "--port", help="Serving port", default=8080, type=int)
-    parser.add_argument("-r", "--rounds", help="Number of training and aggregation rounds", default=100, type=int)
+    parser.add_argument("-r", "--rounds", help="Number of training and aggregation rounds", default=20, type=int)
     parser.add_argument("-d", "--dataset", help="dataset directory", default=ids_dnp3_federated_datasets_path)
     args = parser.parse_args()
 
@@ -113,9 +113,6 @@ if __name__ == "__main__" :
         evaluate_fn=get_evaluate_fn(model),
         on_fit_config_fn=fit_round,
     )
-
-    # Construct the server address
-    server_address = f"{args.address}:{args.port}"
     
     # Print the server address
     print(f"{Fore.CYAN}Starting Flower server at {args.address}:{args.port}{Style.RESET_ALL}")
