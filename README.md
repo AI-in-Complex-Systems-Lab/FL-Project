@@ -12,6 +12,8 @@
 - pandas: 2.2.2 (pi and iMac) (unsure for jetson, checking process stoped due to issue with installing tensorflow)
 - Protobuf - 3.20.3
 - Iterators - 0.0.2
+- ptotobuf - 4.25.2 (jetson)
+- matplotlib: 3.7.5 (jetson)
 
 # To config the Jetson:
 - python3 -V (confirm below 3.8.0)
@@ -39,9 +41,10 @@
 - If scikit is a issue, try
 - pip install --upgrade scikit-learn
 - pip install tensorflow
-- 
+-
 - If HDF5 is a issue, try
-- TO BE CONTINUE...
+- To download HDF5 in version 1.12
+- And make h5py version 3.10.0
 
 _ If Wheel is a issue, try
 - python3 -m pip install --upgrade wheel
