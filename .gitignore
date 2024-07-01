@@ -3,6 +3,10 @@ __pycache__/
 cifar-10-batches-py/
 cifar-10-python.tar.gz/
 datasets/
+commands/
+.DS_Store/
+log/
+result/
 <<<<<<< HEAD
 .ipynb_checkpoints/
 Balanced_IEC104_Train_Test_CSV_Files/
