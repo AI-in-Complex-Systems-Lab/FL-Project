@@ -12,11 +12,19 @@ def get_ip_address():
         ip_address = '127.0.0.1'  # Fallback to localhost
     return ip_address
 
-def weighted_average(metrics):
-    accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
-    examples = [num_examples for num_examples, _ in metrics]
+# Create an instance of the model and get the parameters
+params = get_parameters(Net())
 
-    return {"accuracy": sum(accuracies) / sum(examples)}
+# Pass parameters to the Strategy for server-side parameter initialization
+strategy = fl.server.strategy.FedAvg(
+    fraction_fit=0.3,
+    fraction_evaluate=0.3,
+    min_fit_clients=3,
+    min_evaluate_clients=3,
+    min_available_clients=NUM_CLIENTS,
+    initial_parameters=fl.common.ndarrays_to_parameters(params),
+)
+
 
 ip_address = get_ip_address()
 server_addr=ip_address + ':8080' 
