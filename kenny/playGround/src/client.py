@@ -1,23 +1,39 @@
 from collections import OrderedDict
 
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
-from torchvision.datasets import CIFAR10
+from torchvision.datasets import CIFAR10, MNIST
 
 import flwr as fl
+from flwr.common import Metrics
+from flwr_datasets import FederatedDataset
+import json
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+print(
+    f"Training on {DEVICE} using PyTorch {torch.__version__} and Flower {fl.__version__}"
+)
+
+NUM_CLIENTS = 2
+BATCH_SIZE = 32
+
+
 def load_data():
+    fds = FederatedDataset(dataset="cifar10", partitioners={"train": NUM_CLIENTS})
+    
     """Load CIFAR-10 (training and test set)."""
+    
     transform = transforms.Compose(
     [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
     )
-    trainset = CIFAR10(".", train=True, download=True, transform=transform)
-    testset = CIFAR10(".", train=False, download=True, transform=transform)
+    trainset = CIFAR10("./data", train=True, download=True, transform=transform)
+    testset = CIFAR10("./data", train=False, download=True, transform=transform)
     trainloader = DataLoader(trainset, batch_size=32, shuffle=True)
     testloader = DataLoader(testset, batch_size=32)
     num_examples = {"trainset" : len(trainset), "testset" : len(testset)}
@@ -92,4 +108,19 @@ class CifarClient(fl.client.NumPyClient):
         loss, accuracy = test(net, testloader)
         return float(loss), num_examples["testset"], {"accuracy": float(accuracy)}
     
-fl.client.start_client(server_address="[::]:8080", client=CifarClient().to_client())
+# Read server address from the config file
+with open("server_config.json", "r") as f:
+    config = json.load(f)    
+
+server_addr = config["server_address"]
+
+#ip_address = '169.226.53.20'  # here you should write the server ip-address
+#server_addr=ip_address + ':8080'
+
+# Print the server address
+print(f"Starting Flower server at {server_addr}")
+
+fl.client.start_client(
+    server_address=server_addr,
+    client=CifarClient().to_client()
+    )

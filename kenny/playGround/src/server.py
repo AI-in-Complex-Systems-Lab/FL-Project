@@ -12,6 +12,12 @@ def get_ip_address():
         ip_address = '127.0.0.1'  # Fallback to localhost
     return ip_address
 
+def weighted_average(metrics):
+    accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
+    examples = [num_examples for num_examples, _ in metrics]
+
+    return {"accuracy": sum(accuracies) / sum(examples)}
+
 ip_address = get_ip_address()
 server_addr=ip_address + ':8080' 
 
@@ -24,6 +30,9 @@ with open("server_config.json", "w") as f:
 print(f"Starting Flower server at {server_addr}")
 
 fl.server.start_server(
-    config=fl.server.ServerConfig(num_rounds=3)
+    server_address=server_addr,
+    config=fl.server.ServerConfig(num_rounds=3),
+    strategy=fl.server.strategy.FedAvg(
+    evaluate_metrics_aggregation_fn = weighted_average,
+    ),
 )
-
