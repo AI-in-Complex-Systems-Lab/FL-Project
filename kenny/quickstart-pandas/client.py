@@ -11,7 +11,7 @@ from flwr_datasets import FederatedDataset
 
 column_names = ["sepal_length", "sepal_width"]
 
-
+# This function computes the histogram of a specified column in a pandas DataFrame and returns the frequencies.
 def compute_hist(df: pd.DataFrame, col_name: str) -> np.ndarray:
     freqs, _ = np.histogram(df[col_name])
     return freqs
@@ -22,6 +22,7 @@ class FlowerClient(fl.client.NumPyClient):
     def __init__(self, X: pd.DataFrame):
         self.X = X
 
+    # It computes histograms for each column in self.X and returns a tuple containing the list of histograms, the number of samples, and an empty dictionary.
     def fit(
         self, parameters: List[np.ndarray], config: Dict[str, str]
     ) -> Tuple[List[np.ndarray], int, Dict]:
