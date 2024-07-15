@@ -1,5 +1,3 @@
-# This is a supervised learning, netural network apporach.
-
 import torch
 import torch.nn as nn
 import numpy as np
@@ -102,7 +100,7 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
 
 # training loop
 
-num_epochs = 1000
+num_epochs = 100
 
 for epoch in range(num_epochs):
     # forward pass and loss
@@ -121,3 +119,12 @@ for epoch in range(num_epochs):
             y_predicted_cls = torch.round(y_predicted)  # round off to nearest class
             accuracy = (y_predicted_cls == y_test).sum().item() / len(y_test)
             print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}, Accuracy: {accuracy:.4f}')
+            
+            # Collect predictions and actual labels for analysis
+            #predictions = y_predicted_cls.numpy().flatten()
+            #actuals = y_test.numpy().flatten()
+            #features = X_test.numpy()  # Features as numpy array
+            
+            # Print or store these values as needed
+            #for i in range(len(predictions)):
+                #print(f"Features: {features[i]}, Predicted: {predictions[i]}, Actual: {actuals[i]}")
