@@ -3,10 +3,30 @@ import warnings
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
-
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.model_selection import train_test_split
+import pandas as pd
 import flwr as fl
 import utils
-from flwr_datasets import FederatedDataset
+
+# Define the columns
+feature_columns = ['id.orig_p', 'id.resp_p', 'proto', 'service', 'duration', 'orig_bytes',
+                   'resp_bytes', 'conn_state', 'missed_bytes', 'history', 'orig_pkts',
+                   'orig_ip_bytes', 'resp_pkts', 'resp_ip_bytes']
+target_column = 'label'
+categorical_columns = ['proto', 'service', 'conn_state', 'history']
+numerical_columns = [col for col in feature_columns if col not in categorical_columns]
+
+# Load the dataset
+def load_dataset(partition_id=None):
+    # Replace with actual path to your Parquet file
+    df = pd.read_parquet("hf://datasets/19kmunz/iot-23-preprocessed/data/train-00000-of-00001-ad1ef30cd88c8d29.parquet")
+    if partition_id is not None:
+        df = df[df['partition_id'] == partition_id]  # Adjust partitioning logic as needed
+    X = df[feature_columns]
+    y = df[target_column]
+    return X, y
 
 if __name__ == "__main__":
     N_CLIENTS = 10
@@ -16,20 +36,26 @@ if __name__ == "__main__":
         "--partition-id",
         type=int,
         choices=range(0, N_CLIENTS),
-        required=True,
+        required=False,
         help="Specifies the artificial data partition",
     )
     args = parser.parse_args()
     partition_id = args.partition_id
 
     # Load the partition data
-    fds = FederatedDataset(dataset="mnist", partitioners={"train": N_CLIENTS})
+    X, y = load_dataset(partition_id)
 
-    dataset = fds.load_partition(partition_id, "train").with_format("numpy")
-    X, y = dataset["image"].reshape((len(dataset), -1)), dataset["label"]
-    # Split the on edge data: 80% train, 20% test
-    X_train, X_test = X[: int(0.8 * len(X))], X[int(0.8 * len(X)) :]
-    y_train, y_test = y[: int(0.8 * len(y))], y[int(0.8 * len(y)) :]
+    # Preprocess the data
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', StandardScaler(), numerical_columns),
+            ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_columns)
+        ]
+    )
+    X = preprocessor.fit_transform(X)
+
+    # Split the data: 80% train, 20% test
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     # Create LogisticRegression Model
     model = LogisticRegression(
@@ -42,7 +68,7 @@ if __name__ == "__main__":
     utils.set_initial_params(model)
 
     # Define Flower client
-    class MnistClient(fl.client.NumPyClient):
+    class IoTClient(fl.client.NumPyClient):
         def get_parameters(self, config):  # type: ignore
             return utils.get_model_parameters(model)
 
@@ -62,6 +88,6 @@ if __name__ == "__main__":
             return loss, len(X_test), {"accuracy": accuracy}
 
     # Start Flower client
-    fl.client.start_numpy_client(
-        server_address="0.0.0.0:8080", client=MnistClient()
+    fl.client.start_client(
+        server_address="0.0.0.0:8080", client=IoTClient().to_client()
     )
