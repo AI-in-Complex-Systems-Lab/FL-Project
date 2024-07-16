@@ -3,10 +3,8 @@ import torch.nn as nn
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, LabelEncoder, OneHotEncoder
-from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
 import os
 
 # Load the dataset from the Parquet file
@@ -27,7 +25,7 @@ test_csv_path = os.path.join(data_folder, 'test.csv')
 train_df.to_csv(train_csv_path, index=False)
 test_df.to_csv(test_csv_path, index=False)
 
-# Calculate sizes  
+# Calculate sizes
 total_size = len(train_df) + len(test_df)
 # Print the total size and percentages
 print(f"Total data size: {total_size}")
@@ -37,13 +35,16 @@ print(f"Testing data size: {len(test_df)}")
 
 # Prepare data for training
 # Define feature columns and target column
-feature_columns = ['id.orig_p', 'id.resp_p', 'proto', 'service', 'duration', 'orig_bytes', 'resp_bytes', 'conn_state', 'missed_bytes', 'history', 'orig_pkts', 'orig_ip_bytes', 'resp_pkts', 'resp_ip_bytes']
+numerical_features = ['id.orig_p', 'id.resp_p', 'duration', 'orig_bytes', 'resp_bytes', 'missed_bytes', 'orig_pkts', 'orig_ip_bytes', 'resp_pkts', 'resp_ip_bytes']
+categorical_features = ['proto', 'service', 'conn_state', 'history']
 target_column = 'label'
 
 # Extract features and target
-X_train = train_df[feature_columns].values
+X_train_num = train_df[numerical_features].values
+X_train_cat = train_df[categorical_features].values
 y_train = train_df[target_column].values
-X_test = test_df[feature_columns].values
+X_test_num = test_df[numerical_features].values
+X_test_cat = test_df[categorical_features].values
 y_test = test_df[target_column].values
 
 # Encode target labels
@@ -51,25 +52,24 @@ label_encoder = LabelEncoder()
 y_train = label_encoder.fit_transform(y_train)
 y_test = label_encoder.transform(y_test)
 
-# Define the preprocessor to handle numerical and categorical features
-#preprocessor = ColumnTransformer(
-#    transformers=[
-#        ('num', Pipeline(steps=[
-#            ('imputer', SimpleImputer(strategy='mean')),
-#            ('scaler', StandardScaler())
-#        ]), ['id.orig_p', 'id.resp_p', 'duration', 'orig_bytes', 'resp_bytes', 'missed_bytes', 'orig_pkts', 'orig_ip_bytes', 'resp_pkts', 'resp_ip_bytes']),
-#        ('cat', OneHotEncoder(handle_unknown='ignore'), ['proto', 'service', 'conn_state', 'history'])
-#    ]
-#)
+# Handle missing values in numerical features
+imputer = SimpleImputer(strategy='mean')
+X_train_num = imputer.fit_transform(X_train_num)
+X_test_num = imputer.transform(X_test_num)
 
-# Fit and transform the training data
-X_train = label_encoder.fit_transform(train_df)
-# Transform the test data
-X_test = label_encoder.transform(test_df)
+# Scale numerical features
+scaler = StandardScaler()
+X_train_num = scaler.fit_transform(X_train_num)
+X_test_num = scaler.transform(X_test_num)
 
-# Convert sparse matrix to dense numpy array
-X_train = X_train.toarray()
-X_test = X_test.toarray()
+# One-hot encode categorical features
+one_hot_encoder = OneHotEncoder(handle_unknown='ignore')
+X_train_cat = one_hot_encoder.fit_transform(X_train_cat).toarray()
+X_test_cat = one_hot_encoder.transform(X_test_cat).toarray()
+
+# Combine numerical and categorical features
+X_train = np.hstack((X_train_num, X_train_cat))
+X_test = np.hstack((X_test_num, X_test_cat))
 
 # Convert to PyTorch tensors
 X_train = torch.from_numpy(X_train.astype(np.float32))
@@ -98,41 +98,30 @@ n_features = X_train.shape[1]
 model = LogisticRegression(n_features)
 
 # Loss and optimizer
-
 criterion = nn.BCELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
-# training loop
-
+# Training loop
 num_epochs = 100
 
 for epoch in range(num_epochs):
-    # forward pass and loss
+    # Forward pass and loss
     y_predicted = model(X_train)
     loss = criterion(y_predicted, y_train)
     
-    # backward pass
+    # Backward pass
     loss.backward()
     
-    # updates
+    # Updates
     optimizer.step()
     
-    # zero gradients
+    # Zero gradients
     optimizer.zero_grad()
     
     if (epoch+1) % 10 == 0:
         y_predicted = model(X_test)
         # Evaluate model
         with torch.no_grad():
-            y_predicted_cls = torch.round(y_predicted)  # round off to nearest class
+            y_predicted_cls = torch.round(y_predicted)  # Round off to nearest class
             accuracy = (y_predicted_cls == y_test).sum().item() / len(y_test)
             print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}, Accuracy: {accuracy:.4f}')
-            
-            # Collect predictions and actual labels for analysis
-            #predictions = y_predicted_cls.numpy().flatten()
-            #actuals = y_test.numpy().flatten()
-            #features = X_test.numpy()  # Features as numpy array
-            
-            # Print or store these values as needed
-            #for i in range(len(predictions)):
-                #print(f"Features: {features[i]}, Predicted: {predictions[i]}, Actual: {actuals[i]}")

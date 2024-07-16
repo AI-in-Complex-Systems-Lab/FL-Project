@@ -1,93 +1,118 @@
-import argparse
-import warnings
-
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import log_loss
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.model_selection import train_test_split
+import torch
+import torch.nn as nn
+import numpy as np
 import pandas as pd
+from sklearn.preprocessing import StandardScaler, LabelEncoder, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split
 import flwr as fl
 import utils
+import json
 
-# Define the columns
-feature_columns = ['id.orig_p', 'id.resp_p', 'proto', 'service', 'duration', 'orig_bytes',
-                   'resp_bytes', 'conn_state', 'missed_bytes', 'history', 'orig_pkts',
-                   'orig_ip_bytes', 'resp_pkts', 'resp_ip_bytes']
-target_column = 'label'
-categorical_columns = ['proto', 'service', 'conn_state', 'history']
-numerical_columns = [col for col in feature_columns if col not in categorical_columns]
+# Define the model
+class LogisticRegression(nn.Module):
+    def __init__(self, input_size):
+        super(LogisticRegression, self).__init__()
+        self.linear = nn.Linear(input_size, 8)
+        self.linear2 = nn.Linear(8, 4)
+        self.linear3 = nn.Linear(4, 1)
+        nn.init.xavier_uniform_(self.linear.weight)
 
-# Load the dataset
-def load_dataset(partition_id=None):
-    # Replace with actual path to your Parquet file
+    def forward(self, x):
+        logits = self.linear(x)
+        logits = self.linear2(logits)
+        logits = self.linear3(logits)
+        y_predicted = torch.sigmoid(logits)
+        return y_predicted
+
+# Load and preprocess data
+def load_data():
     df = pd.read_parquet("hf://datasets/19kmunz/iot-23-preprocessed/data/train-00000-of-00001-ad1ef30cd88c8d29.parquet")
-    if partition_id is not None:
-        df = df[df['partition_id'] == partition_id]  # Adjust partitioning logic as needed
-    X = df[feature_columns]
-    y = df[target_column]
-    return X, y
+    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+    train_df = train_df.dropna()
+    test_df = test_df.dropna()
 
-if __name__ == "__main__":
-    N_CLIENTS = 10
+    feature_columns = ['id.orig_p', 'id.resp_p', 'proto', 'duration', 'orig_bytes', 'resp_bytes', 'conn_state', 'missed_bytes', 'history', 'orig_pkts', 'orig_ip_bytes', 'resp_pkts', 'resp_ip_bytes']
+    target_column = 'label'
 
-    parser = argparse.ArgumentParser(description="Flower")
-    parser.add_argument(
-        "--partition-id",
-        type=int,
-        choices=range(0, N_CLIENTS),
-        required=False,
-        help="Specifies the artificial data partition",
-    )
-    args = parser.parse_args()
-    partition_id = args.partition_id
+    X_train = train_df[feature_columns].values
+    y_train = train_df[target_column].values
+    X_test = test_df[feature_columns].values
+    y_test = test_df[target_column].values
 
-    # Load the partition data
-    X, y = load_dataset(partition_id)
+    label_encoder = LabelEncoder()
+    y_train = label_encoder.fit_transform(y_train)
+    y_test = label_encoder.transform(y_test)
 
-    # Preprocess the data
     preprocessor = ColumnTransformer(
         transformers=[
-            ('num', StandardScaler(), numerical_columns),
-            ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_columns)
+            ('num', Pipeline(steps=[
+                ('imputer', SimpleImputer(strategy='mean')),
+                ('scaler', StandardScaler())
+            ]), ['id.orig_p', 'id.resp_p', 'duration', 'orig_bytes', 'resp_bytes', 'missed_bytes', 'orig_pkts', 'orig_ip_bytes', 'resp_pkts', 'resp_ip_bytes']),
+            ('cat', OneHotEncoder(handle_unknown='ignore'), ['proto', 'conn_state', 'history'])
         ]
     )
-    X = preprocessor.fit_transform(X)
 
-    # Split the data: 80% train, 20% test
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train = preprocessor.fit_transform(train_df)
+    X_test = preprocessor.transform(test_df)
 
-    # Create LogisticRegression Model
-    model = LogisticRegression(
-        penalty="l2",
-        max_iter=1,  # local epoch
-        warm_start=True,  # prevent refreshing weights when fitting
-    )
+    X_train = torch.from_numpy(X_train.toarray().astype(np.float32))
+    X_test = torch.from_numpy(X_test.toarray().astype(np.float32))
+    y_train = torch.from_numpy(y_train.astype(np.float32)).view(-1, 1)
+    y_test = torch.from_numpy(y_test.astype(np.float32)).view(-1, 1)
 
-    # Setting initial parameters, akin to model.compile for keras models
+    return X_train, y_train, X_test, y_test, preprocessor
+
+class IoTClient(fl.client.NumPyClient):
+    def __init__(self, model, X_train, y_train, X_test, y_test):
+        self.model = model
+        self.X_train = X_train
+        self.y_train = y_train
+        self.X_test = X_test
+        self.y_test = y_test
+        self.criterion = nn.BCELoss()
+        self.optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+
+    def get_parameters(self, config):
+        return utils.get_model_parameters(self.model)
+
+    def fit(self, parameters, config):
+        utils.set_model_params(self.model, parameters)
+        self.model.train()
+        self.optimizer.zero_grad()
+        y_pred = self.model(self.X_train)
+        loss = self.criterion(y_pred, self.y_train)
+        loss.backward()
+        self.optimizer.step()
+        return utils.get_model_parameters(self.model), len(self.X_train), {}
+
+    def evaluate(self, parameters, config):
+        utils.set_model_params(self.model, parameters)
+        self.model.eval()
+        with torch.no_grad():
+            y_pred = self.model(self.X_test)
+            loss = self.criterion(y_pred, self.y_test).item()
+            y_pred_cls = torch.round(y_pred)
+            accuracy = (y_pred_cls == self.y_test).sum().item() / len(self.y_test)
+        return loss, len(self.X_test), {"accuracy": accuracy}
+
+if __name__ == "__main__":
+    X_train, y_train, X_test, y_test, preprocessor = load_data()
+    n_features = X_train.shape[1]
+    model = LogisticRegression(n_features)
     utils.set_initial_params(model)
 
-    # Define Flower client
-    class IoTClient(fl.client.NumPyClient):
-        def get_parameters(self, config):  # type: ignore
-            return utils.get_model_parameters(model)
+    client = IoTClient(model, X_train, y_train, X_test, y_test)
+    # Read server address from the config file
+    with open("server_config.json", "r") as f:
+     config = json.load(f)    
 
-        def fit(self, parameters, config):  # type: ignore
-            utils.set_model_params(model, parameters)
-            # Ignore convergence failure due to low local epochs
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                model.fit(X_train, y_train)
-            print(f"Training finished for round {config['server_round']}")
-            return utils.get_model_parameters(model), len(X_train), {}
+    server_addr = config["server_address"]
 
-        def evaluate(self, parameters, config):  # type: ignore
-            utils.set_model_params(model, parameters)
-            loss = log_loss(y_test, model.predict_proba(X_test))
-            accuracy = model.score(X_test, y_test)
-            return loss, len(X_test), {"accuracy": accuracy}
+    # Print the server address
+    print(f"Starting Flower server at {server_addr}")
+    fl.client.start_client(server_address=server_addr, client=client)
 
-    # Start Flower client
-    fl.client.start_client(
-        server_address="0.0.0.0:8080", client=IoTClient().to_client()
-    )
