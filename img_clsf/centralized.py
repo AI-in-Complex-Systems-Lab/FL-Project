@@ -27,7 +27,7 @@ class Net(nn.Module):
 
 def train(net, trainloader, epochs):
     criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum = 0.9)
+    optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
     for _ in range(epochs):
         for images, labels in trainloader:
             optimizer.zero_grad()
