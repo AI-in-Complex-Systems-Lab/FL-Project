@@ -39,7 +39,7 @@ server_addr = config["server_address"]
 # Print the server address
 print(f"Starting Flower server at {server_addr}")
 
-fl.client.start_client(
+fl.client.start_numpy_client(
     server_address=server_addr,
     client=FlowerClient(),
 )
