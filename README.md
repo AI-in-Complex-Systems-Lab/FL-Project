@@ -14,7 +14,7 @@
 - Iterators - 0.0.2
 - ptotobuf - 4.25.2 (jetson)
 - matplotlib: 3.7.5 (jetson)
-
+- grpcio: 1.64.1
 # To config the Jetson:
 - python3 -V (confirm below 3.8.0)
 - sudo apt update
