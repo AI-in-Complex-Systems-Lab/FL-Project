@@ -33,6 +33,7 @@ fl.server.start_server(
     server_address=server_addr,
     config=fl.server.ServerConfig(num_rounds=5),
     strategy=fl.server.strategy.FedAvg(
-        evaluate_metrics_aggregation_fn = weighted_average,
-    ),
+        evaluate_metrics_aggregation_fn = weighted_average, 
+        min_available_clients=3, 
+),
 )
