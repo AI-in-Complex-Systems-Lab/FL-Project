@@ -25,32 +25,51 @@ class Net(nn.Module):
         x = F.relu(self.fc2(x))
         return self.fc3(x)
 
-def train(net, trainloader, epochs):
+def train(net, trainloader, testloader, epochs):
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
-    for _ in range(epochs):
+    for epoch in range(epochs):
+        running_loss = 0.0
+        correct = 0
+        total = 0
         for images, labels in trainloader:
             optimizer.zero_grad()
-            criterion(net(images.to(DEVICE)), labels.to(DEVICE)).backward()
+            outputs = net(images.to(DEVICE))
+            loss = criterion(outputs, labels.to(DEVICE))
+            loss.backward()
             optimizer.step()
 
-def test(net, testloader):
+            running_loss += loss.item()
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels.to(DEVICE)).sum().item()
+        
+        if (epoch + 1) % 5 == 0:
+            epoch_loss = running_loss / len(trainloader)
+            epoch_accuracy = correct / total
+            
+            test_loss, test_accuracy = test(net, testloader)
+
+            print(f"Epoch {epoch + 1}/{epochs} - "
+                  f"Train Loss: {epoch_loss:.5f}, Train Accuracy: {epoch_accuracy:.3f} - "
+                  f"Test Loss: {test_loss:.5f}, Test Accuracy: {test_accuracy:.3f}")
+
+def test(net, dataloader):
     criterion = torch.nn.CrossEntropyLoss()
     correct, total, loss = 0, 0, 0.0
     with torch.no_grad():
-        for images, labels in testloader:
+        for images, labels in dataloader:
             outputs = net(images.to(DEVICE))
             loss += criterion(outputs, labels.to(DEVICE)).item()
             total += labels.size(0)
             correct += (torch.max(outputs.data, 1)[1] == labels).sum().item()
-    return loss / len(testloader.dataset), correct / total
-
+    return loss / len(dataloader.dataset), correct / total
 
 def load_data():
     trf = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-    trainset = CIFAR10("./data", train = True, download = True, transform = trf)
-    testset = CIFAR10("./data", train = False, download = True, transform = trf)
-    return DataLoader(trainset, batch_size = 32, shuffle = True), DataLoader(testset)
+    trainset = CIFAR10("./data", train=True, download=True, transform=trf)
+    testset = CIFAR10("./data", train=False, download=True, transform=trf)
+    return DataLoader(trainset, batch_size=32, shuffle=True), DataLoader(testset)
 
 def load_model():
     return Net().to(DEVICE)
@@ -58,6 +77,6 @@ def load_model():
 if __name__ == "__main__":
     net = load_model()
     trainloader, testloader = load_data()
-    train(net, trainloader, 5)
+    train(net, trainloader, testloader, 20)
     loss, accuracy = test(net, testloader)
-    print(f"Loss: {loss:.5f}, Accuracy: {accuracy:.3f}")
+    print(f"Final Test Loss: {loss:.5f}, Final Test Accuracy: {accuracy:.3f}")

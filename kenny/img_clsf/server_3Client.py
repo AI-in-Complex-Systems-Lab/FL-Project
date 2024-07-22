@@ -31,9 +31,11 @@ print(f"Starting Flower server at {server_addr}")
 
 fl.server.start_server(
     server_address=server_addr,
-    config=fl.server.ServerConfig(num_rounds=5),
+    config=fl.server.ServerConfig(num_rounds=50),
     strategy=fl.server.strategy.FedAvg(
         evaluate_metrics_aggregation_fn = weighted_average, 
+        min_fit_clients=3,
+        min_evaluate_clients=3,
         min_available_clients=3, 
 ),
 )
