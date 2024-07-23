@@ -29,6 +29,7 @@ def train(net, trainloader, testloader, epochs):
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
     for epoch in range(epochs):
+        net.train()
         running_loss = 0.0
         correct = 0
         total = 0
@@ -45,6 +46,7 @@ def train(net, trainloader, testloader, epochs):
             correct += (predicted == labels.to(DEVICE)).sum().item()
         
         if (epoch + 1) % 5 == 0:
+            net.eval()
             epoch_loss = running_loss / len(trainloader)
             epoch_accuracy = correct / total
             
@@ -77,6 +79,6 @@ def load_model():
 if __name__ == "__main__":
     net = load_model()
     trainloader, testloader = load_data()
-    train(net, trainloader, testloader, 20)
+    train(net, trainloader, testloader, 50)
     loss, accuracy = test(net, testloader)
     print(f"Final Test Loss: {loss:.5f}, Final Test Accuracy: {accuracy:.3f}")
