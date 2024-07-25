@@ -58,6 +58,6 @@ def load_model():
 if __name__ == "__main__":
     net = load_model()
     trainloader, testloader = load_data()
-    train(net, trainloader, 50)
+    train(net, trainloader, 5)
     loss, accuracy = test(net, testloader)
     print(f"Loss: {loss:.5f}, Accuracy: {accuracy:.3f}")
