@@ -39,6 +39,9 @@ numerical_features = ['id.orig_p', 'id.resp_p', 'duration', 'orig_bytes', 'resp_
 categorical_features = ['proto', 'service', 'conn_state', 'history']
 target_column = 'label'
 
+train_df = train_df.dropna()
+test_df = test_df.dropna()
+
 # Extract features and target
 X_train_num = train_df[numerical_features].values
 X_train_cat = train_df[categorical_features].values
@@ -81,15 +84,15 @@ class LogisticRegression(nn.Module):
 
     def __init__(self, input_size):
         super(LogisticRegression, self).__init__()
-        self.linear = nn.Linear(input_size, 32)
-        self.linear2 = nn.Linear(32, 16)
-        self.linear3 = nn.Linear(16, 1)
+        self.linear = nn.Linear(input_size, 1)
+        #self.linear2 = nn.Linear(32, 16)
+        #self.linear3 = nn.Linear(16, 1)
         nn.init.xavier_uniform_(self.linear.weight)  # Initialize weights
 
     def forward(self, x):
         logits = self.linear(x)
-        logits = self.linear2(logits)
-        logits = self.linear3(logits)
+        #logits = self.linear2(logits)
+        #logits = self.linear3(logits)
         y_predicted = torch.sigmoid(logits)
         return y_predicted
     
@@ -99,10 +102,10 @@ model = LogisticRegression(n_features)
 
 # Loss and optimizer
 criterion = nn.BCELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 # Training loop
-num_epochs = 100
+num_epochs = 50
 
 for epoch in range(num_epochs):
     # Forward pass and loss
@@ -118,7 +121,7 @@ for epoch in range(num_epochs):
     # Zero gradients
     optimizer.zero_grad()
     
-    if (epoch+1) % 10 == 0:
+    if (epoch+1) % 5 == 0:
         y_predicted = model(X_test)
         # Evaluate model
         with torch.no_grad():

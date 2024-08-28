@@ -8,6 +8,7 @@ commands/
 log/
 result/
 .conda/
+metrics/
 <<<<<<< HEAD
 .ipynb_checkpoints/
 Balanced_IEC104_Train_Test_CSV_Files/
