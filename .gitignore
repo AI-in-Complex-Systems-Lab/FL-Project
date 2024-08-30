@@ -8,6 +8,7 @@ commands/
 log/
 result/
 .conda/
+.venv/
 metrics/
 <<<<<<< HEAD
 .ipynb_checkpoints/
