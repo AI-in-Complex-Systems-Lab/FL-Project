@@ -6,6 +6,7 @@ import glob
 import argparse
 from collections import OrderedDict
 from typing import Dict, List, Tuple
+import json
 
 import numpy as np
 import torch
@@ -22,6 +23,11 @@ USE_FEDBN: bool = True
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+# Read server address from the config file
+with open("server_config.json", "r") as f:
+    config = json.load(f)    
+
+server_addr = config["server_address"]
 
 # Flower Client
 class AnomalyClient(fl.client.NumPyClient):
@@ -147,7 +153,11 @@ def main() -> None:
     #client = AnomalyClient(model, trainloader, testloader).to_client()
     client = AnomalyClient(model, trainloader, testloader, client_id=args.node_id).to_client()
 
-    fl.client.start_client(server_address="169.226.53.20:8080", client=client)
+    # Print the server address
+    print(f"Starting Flower server at {server_addr}")
+
+    fl.client.start_client(server_address=server_addr, client=client)
+    #fl.client.start_client(server_address="169.226.53.20:8080", client=client)
 
     metrics_df = aggregate_metrics()
 
