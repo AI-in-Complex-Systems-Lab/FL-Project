@@ -147,7 +147,7 @@ def main() -> None:
     #client = AnomalyClient(model, trainloader, testloader).to_client()
     client = AnomalyClient(model, trainloader, testloader, client_id=args.node_id).to_client()
 
-    fl.client.start_client(server_address="[::]:8080", client=client)
+    fl.client.start_client(server_address="169.226.53.20:8080", client=client)
 
     metrics_df = aggregate_metrics()
 

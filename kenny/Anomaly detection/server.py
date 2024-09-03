@@ -31,9 +31,12 @@ strategy = fl.server.strategy.FedAvg(
     min_available_clients=NUM_OF_CLIENTS, # Minimum of 5 clients to start training
 )
 
+ip_address = '169.226.53.20'
+server_addr=ip_address + ':8080'
+
 # Start Flower server
 fl.server.start_server(
-    server_address="[::]:8080",
+    server_address=server_addr,
     config=fl.server.ServerConfig(num_rounds=10),
     strategy=strategy,
 )
