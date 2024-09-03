@@ -9,7 +9,7 @@ import numpy as np
 from flwr.server.client_proxy import ClientProxy
 from flwr.common import EvaluateRes, FitRes, Scalar, Metrics
 
-NUM_OF_CLIENTS = 5
+NUM_OF_CLIENTS = 6
 NUM_ROUNDS = 10
 
 
@@ -26,9 +26,9 @@ strategy = fl.server.strategy.FedAvg(
     evaluate_metrics_aggregation_fn=weighted_average,
     fraction_evaluate=1.0, # 100% of clients participate in the evaluation
     fraction_fit=1.0, # 100% of clients participate in the training
-    min_fit_clients=NUM_OF_CLIENTS, # Minimum of 5 clients for training
-    min_evaluate_clients=NUM_OF_CLIENTS, # Minimum of 5 clients for evaluation
-    min_available_clients=NUM_OF_CLIENTS, # Minimum of 5 clients to start training
+    min_fit_clients=NUM_OF_CLIENTS, # Minimum of 6 clients for training
+    min_evaluate_clients=NUM_OF_CLIENTS, # Minimum of 6 clients for evaluation
+    min_available_clients=NUM_OF_CLIENTS, # Minimum of 6 clients to start training
 )
 
 ip_address = '169.226.53.20'

@@ -129,7 +129,7 @@ def plot_loss_per_round(metrics_df, metric_name, title, save_path):
 def main() -> None:
     """Load data, start AnomalyClient."""
     parser = argparse.ArgumentParser(description="Flower")
-    parser.add_argument("--node-id", type=int, required=True, choices=range(0, 5))
+    parser.add_argument("--node-id", type=int, required=True, choices=range(0, 6))
     args = parser.parse_args()
 
     csv_path = './data/cell_data.csv'
