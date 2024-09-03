@@ -97,3 +97,5 @@ fl.server.start_server(
     config=fl.server.ServerConfig(num_rounds=3),
     strategy=FedAnalytics(),
 )
+
+print ("hellp")
