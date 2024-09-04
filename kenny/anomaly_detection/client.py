@@ -138,10 +138,10 @@ def main() -> None:
     parser.add_argument("--node-id", type=int, required=True, choices=range(0, 6))
     args = parser.parse_args()
 
-    csv_path = './data/cell_data.csv'
+    csv_path = './data/modified_file.csv'
 
     # Load data
-    trainloader, testloader = anomaly.load_data(csv_path=csv_path, which_cell=args.node_id)
+    trainloader, testloader = anomaly.load_data(csv_path=csv_path)
 
     # Load model
     model = anomaly.Net(input_dim=96).to(DEVICE).train()

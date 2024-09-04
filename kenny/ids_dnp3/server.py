@@ -109,6 +109,8 @@ if __name__ == "__main__" :
 
     # Define a FL strategy
     strategy = fl.server.strategy.FedAvg(
+        min_fit_clients=3,
+        min_evaluate_clients=3,
         min_available_clients=3,
         evaluate_fn=get_evaluate_fn(model),
         on_fit_config_fn=fit_round,
