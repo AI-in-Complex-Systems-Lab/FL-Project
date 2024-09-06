@@ -2,21 +2,27 @@ import argparse
 import ipaddress
 import os
 import sys
-
 from typing import Dict
-
 import numpy as np
 import pandas as pd
-
 from sklearn.metrics import f1_score
 from sklearn.preprocessing import StandardScaler
-
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import InputLayer, Dense, Dropout
 from tensorflow.keras.utils import to_categorical
-
 import flwr as fl
+import socket
+import json
 
+def get_ip_address():
+    try:
+        # Connect to an external server to determine the local IP address used for that connection
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))  # Google's public DNS server
+            ip_address = s.getsockname()[0]
+    except Exception:
+        ip_address = '127.0.0.1'  # Fallback to localhost
+    return ip_address
 
 def fit_round(server_round: int) -> Dict:
 	"""Send round number to client."""
@@ -39,13 +45,17 @@ def get_evaluate_fn(model: Sequential):
 
 	return evaluate
 
+# Define the base directory as the current directory of the script
+base_dir = os.path.dirname(os.path.abspath(__file__))
+# Construct the path to ids_dnp3 directory
+ids_dnp3_federated_datasets_path = os.path.join(base_dir, 'datasets', 'federated_datasets')
 
 if __name__ == "__main__" :
 	parser = argparse.ArgumentParser(description='Flower aggregator server implementation')
-	parser.add_argument("-a", "--address", help="IP address", default="0.0.0.0")
-	parser.add_argument("-p", "--port", help="Serving port", default=8000, type=int)
+	parser.add_argument("-a", "--address", help="IP address", default=get_ip_address())
+	parser.add_argument("-p", "--port", help="Serving port", default=8080, type=int)
 	parser.add_argument("-r", "--rounds", help="Number of training and aggregation rounds", default=20, type=int)
-	parser.add_argument("-d", "--dataset", help="dataset directory", default="/root/datasets/federated_datasets/")
+	parser.add_argument("-d", "--dataset", help="dataset directory", default=ids_dnp3_federated_datasets_path)
 	args = parser.parse_args()
 
 	try:
@@ -91,11 +101,23 @@ if __name__ == "__main__" :
 
 	# Define a FL strategy
 	strategy = fl.server.strategy.FedAvg(
-		min_available_clients=3,
+		min_fit_clients=5,
+        min_evaluate_clients=5,
+        min_available_clients=5,
 		evaluate_fn=get_evaluate_fn(model),
 		on_fit_config_fn=fit_round,
 	)
+    
+	# Print the server address
+	print(f"Starting Flower server at {args.address}:{args.port}")
 
+	server_addr = f"{args.address}:{args.port}"
+
+	# Write server address to a config file
+	config = {"ip_address": args.address,"server_address": server_addr}
+	with open("server_config.json", "w") as f:
+		json.dump(config, f)
+    
 	# Start Flower aggregation and distribution server
 	fl.server.start_server(
 		server_address=f"{args.address}:{args.port}",

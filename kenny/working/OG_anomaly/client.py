@@ -6,14 +6,14 @@ import glob
 import argparse
 from collections import OrderedDict
 from typing import Dict, List, Tuple
-import json
+
 import numpy as np
 import torch
 from datasets.utils.logging import disable_progress_bar
 from torch.utils.data import DataLoader
+
 import anomaly
 import flwr as fl
-from matplotlib.ticker import FuncFormatter
 
 disable_progress_bar()
 
@@ -22,11 +22,6 @@ USE_FEDBN: bool = True
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-# Read server address from the config file
-with open("server_config.json", "r") as f:
-    config = json.load(f)    
-
-server_addr = config["server_address"]
 
 # Flower Client
 class AnomalyClient(fl.client.NumPyClient):
@@ -125,24 +120,22 @@ def plot_loss_per_round(metrics_df, metric_name, title, save_path):
     plt.ylabel('Loss')
     plt.legend(title='Client ID')
     plt.grid(True)
-
-    # Set y-axis to display up to five decimal places
-    plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{x:.5f}'))
-
+    
     # Save the figure to a file
     plt.savefig(save_path, dpi=300)
     plt.close()
 
+
 def main() -> None:
     """Load data, start AnomalyClient."""
     parser = argparse.ArgumentParser(description="Flower")
-    parser.add_argument("--node-id", type=int, required=True, choices=range(0, 6))
+    parser.add_argument("--node-id", type=int, required=True, choices=range(0, 5))
     args = parser.parse_args()
 
     csv_path = './data/cell_data.csv'
 
     # Load data
-    trainloader, testloader = anomaly.load_data(csv_path=csv_path)
+    trainloader, testloader = anomaly.load_data(csv_path=csv_path, which_cell=args.node_id)
 
     # Load model
     model = anomaly.Net(input_dim=96).to(DEVICE).train()
@@ -154,11 +147,7 @@ def main() -> None:
     #client = AnomalyClient(model, trainloader, testloader).to_client()
     client = AnomalyClient(model, trainloader, testloader, client_id=args.node_id).to_client()
 
-    # Print the server address
-    print(f"Starting Flower server at {server_addr}")
-
-    fl.client.start_client(server_address=server_addr, client=client)
-    #fl.client.start_client(server_address="169.226.53.20:8080", client=client)
+    fl.client.start_client(server_address="[::]:8080", client=client)
 
     metrics_df = aggregate_metrics()
 

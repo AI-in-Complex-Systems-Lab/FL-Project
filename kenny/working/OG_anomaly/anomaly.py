@@ -25,14 +25,14 @@ def load_data(csv_path: str, which_cell: int = 0, window_len: int = 96) -> tuple
     dataset_train = pd.read_csv(csv_path)
     train_data = dataset_train.values
 
-    # Initialize arrays to store anomaly and load data for 5 devices
-    anomaly_data = np.zeros((5, 3, 5, 16608))  # Updated to 5 devices
-    load_data = np.zeros((5, 3, 5, 16608))     # Updated to 5 devices
+    # Initialize arrays to store anomaly and load data
+    anomaly_data = np.zeros((5, 3, 5, 16608))
+    load_data = np.zeros((5, 3, 5, 16608))
 
     # Splitting the dataset into cell-, category-, and device-specific data
     for cell in range(5):
         for category in range(3):
-            for device in range(5):  # Updated range to 5 devices
+            for device in range(5):
                 rows = reduce(np.intersect1d, (np.where(train_data[:, 1] == cell),
                                                np.where(train_data[:, 2] == category),
                                                np.where(train_data[:, 3] == device)))

@@ -1,7 +1,4 @@
-"""Flower server example."""
-
 #import matplotlib.pyplot as plt
-
 from typing import List, Tuple, Optional, Dict, Union
 import flwr as fl
 import numpy as np
@@ -11,7 +8,7 @@ import json
 from flwr.server.client_proxy import ClientProxy
 from flwr.common import EvaluateRes, FitRes, Scalar, Metrics
 
-NUM_OF_CLIENTS = 5
+NUM_OF_CLIENTS = 4
 NUM_ROUNDS = 10
 
 def get_ip_address():
@@ -37,9 +34,9 @@ strategy = fl.server.strategy.FedAvg(
     evaluate_metrics_aggregation_fn=weighted_average,
     fraction_evaluate=1.0, # 100% of clients participate in the evaluation
     fraction_fit=1.0, # 100% of clients participate in the training
-    min_fit_clients=NUM_OF_CLIENTS, # Minimum of 6 clients for training
-    min_evaluate_clients=NUM_OF_CLIENTS, # Minimum of 6 clients for evaluation
-    min_available_clients=NUM_OF_CLIENTS, # Minimum of 6 clients to start training
+    min_fit_clients=NUM_OF_CLIENTS, # Minimum of 4 clients for training
+    min_evaluate_clients=NUM_OF_CLIENTS, # Minimum of 4 clients for evaluation
+    min_available_clients=NUM_OF_CLIENTS, # Minimum of 4 clients to start training
 )
 
 ip_address = get_ip_address()
