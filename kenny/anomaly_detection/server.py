@@ -11,7 +11,7 @@ import json
 from flwr.server.client_proxy import ClientProxy
 from flwr.common import EvaluateRes, FitRes, Scalar, Metrics
 
-NUM_OF_CLIENTS = 6
+NUM_OF_CLIENTS = 5
 NUM_ROUNDS = 10
 
 def get_ip_address():
