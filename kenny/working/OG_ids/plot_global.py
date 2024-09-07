@@ -32,5 +32,4 @@ plt.grid(True)
 plt.xticks(df_filtered["round"])  # Ensure all round numbers are shown on x-axis
 
 # Save the plot
-plt.savefig("metrics/metrics_plot.png")
-plt.show()
+plt.savefig("metrics/global_metrics_plot.png")
