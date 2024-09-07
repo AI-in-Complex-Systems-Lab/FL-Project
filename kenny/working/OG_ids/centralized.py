@@ -20,7 +20,27 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 # Construct the path to ids_dnp3 directory
 ids_dnp3_datasets_path = os.path.join(base_dir, 'datasets', 'federated_datasets')
 
+def get_model():
+      return model
 
+def get_X_train_scaled():
+     return X_train_scaled
+
+def get_X_test_scaled():
+     return X_test_scaled
+
+def get_y_train_cat():
+     return y_train_cat
+
+def get_y_test_cat():
+     return y_test_cat
+
+def get_y_test():
+     return y_test
+
+def get_early_stop():
+     return early_stop
+    
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Centralized Machine Learning Implementation')
     parser.add_argument("-d", "--dataset", help="Dataset directory", default=ids_dnp3_datasets_path)

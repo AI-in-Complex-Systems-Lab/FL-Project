@@ -10,9 +10,12 @@ from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import InputLayer, Dense, Dropout
 from tensorflow.keras.utils import to_categorical
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
 import flwr as fl
 import socket
 import json
+import csv
 
 def get_ip_address():
     try:
@@ -28,22 +31,70 @@ def fit_round(server_round: int) -> Dict:
 	"""Send round number to client."""
 	return {"server_round": server_round}
 
+'''
+def save_confusion_matrix(y_true, y_pred, labels):
+    # Define the directory to save metrics
+    metrics_dir = "metrics"
+    
+	# Create the directory if it doesn't exist
+    os.makedirs(metrics_dir, exist_ok=True)
+    
+    # Compute the confusion matrix
+    cm = confusion_matrix(y_true, y_pred, labels=labels)
+    
+    # Create a confusion matrix display object
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+    
+    # Plot the confusion matrix with specified colormap
+    fig, ax = plt.subplots(figsize=(8, 6))
+    disp.plot(cmap=plt.cm.Blues, ax=ax)
+    
+    # Adjust the ticks and labels if necessary
+    ax.set_xticks(range(len(labels)))  # Set correct tick positions
+    ax.set_yticks(range(len(labels)))  # Set correct tick positions
+    ax.set_xticklabels(labels)         # Set correct tick labels
+    ax.set_yticklabels(labels)         # Set correct tick labels
+    
+    # Save the confusion matrix figure
+    plt.title("Confusion Matrix")
+    plt.savefig(os.path.join(metrics_dir, "confusion_matrix.png"))
+    plt.close()
+'''
+
+def save_metrics(round_number, train_loss, train_accuracy, eval_loss, eval_accuracy, f1):
+    metrics_dir = "metrics"
+    os.makedirs(metrics_dir, exist_ok=True)
+    
+    metrics_file = os.path.join(metrics_dir, "global_metrics.csv")
+    file_exists = os.path.isfile(metrics_file)
+
+    with open(metrics_file, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        if not file_exists:
+            writer.writerow(["round", "train_loss", "train_accuracy", "eval_loss", "eval_accuracy", "f1_score"])
+        writer.writerow([round_number, train_loss, train_accuracy, eval_loss, eval_accuracy, f1])
+
 def get_evaluate_fn(model: Sequential):
-	"""Return an evaluation function for server-side evaluation."""
+    """Return an evaluation function for server-side evaluation."""
 
-	def evaluate(
-		server_round: int,
-		parameters: fl.common.NDArrays,
-		config: Dict[str, fl.common.Scalar],
-	):
-		# Update model with the latest parameters
-		model.set_weights(parameters)
-		loss, accuracy = model.evaluate(X_test_scaled, y_test_cat)
-		f1 = f1_score(y_test, np.argmax(model.predict(X_test_scaled), axis=1), average='weighted')
+    def evaluate(server_round: int, parameters: fl.common.NDArrays, config: Dict[str, fl.common.Scalar]):
+        # Update model with the latest parameters
+        model.set_weights(parameters)
+        loss, accuracy = model.evaluate(X_test_scaled, y_test_cat, verbose=0)
+        f1 = f1_score(y_test, np.argmax(model.predict(X_test_scaled), axis=1), average='weighted')
 
-		return loss, {"accuracy": accuracy, "f1-score": f1}
+        '''
+        # Save the final confusion matrix at the end of the last round
+        if server_round == args.rounds:
+            y_pred = np.argmax(model.predict(X_test_scaled), axis=1)
+            save_confusion_matrix(y_test, y_pred, labels=[0, 1])  # Adjust labels if needed
+        '''
+        # Save metrics to file
+        save_metrics(server_round, None, None, loss, accuracy, f1)
 
-	return evaluate
+        return loss, {"accuracy": accuracy, "f1-score": f1}
+
+    return evaluate
 
 # Define the base directory as the current directory of the script
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -97,7 +148,6 @@ if __name__ == "__main__" :
 	])
 
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-
 
 	# Define a FL strategy
 	strategy = fl.server.strategy.FedAvg(
