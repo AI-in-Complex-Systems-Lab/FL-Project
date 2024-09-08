@@ -1,0 +1,20 @@
+data/
+__pycache__/
+cifar-10-batches-py/
+cifar-10-python.tar.gz/
+datasets/
+commands/
+.DS_Store/
+log/
+result/
+.conda/
+.venv/
+metrics/
+<<<<<<< HEAD
+.ipynb_checkpoints/
+Balanced_IEC104_Train_Test_CSV_Files/
+federated_datasets/
+=======
+>>>>>>> 39827162680e9fd2e5281959b9ea99983667bafe
+*.tar.gz
+.conda/lib/libbz2.1.0.8.dylib
