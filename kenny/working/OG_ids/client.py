@@ -85,8 +85,8 @@ class Client(fl.client.NumPyClient):
     def __init__(self, client_id):
         self.client_id = client_id
         
-       # Define the directory to save metrics
-        self.metrics_dir = "metrics"
+       # Define the directory to save metrics using absolute paths
+        self.metrics_dir = os.path.abspath("metrics")
         
         # Create the directory if it doesn't exist
         os.makedirs(self.metrics_dir, exist_ok=True)
