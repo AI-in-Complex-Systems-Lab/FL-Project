@@ -10,6 +10,7 @@ from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import InputLayer, Dense, Dropout
 from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.optimizers import Adam
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 import flwr as fl
@@ -146,8 +147,10 @@ if __name__ == "__main__" :
 		Dropout(0.2),
 		Dense(units=y_test_cat.shape[1], activation='softmax')
 	])
-
-	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+      
+	optimizer = Adam(learning_rate=0.001)
+      
+	model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 
 	# Define a FL strategy
 	strategy = fl.server.strategy.FedAvg(
