@@ -49,7 +49,7 @@ def test(net, testloader):
 def load_data():
     trf = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     trainset = CIFAR10("./data", train = True, download = True, transform = trf)
-    testset = CIFAR10("./data", train = False, download = True, transform = trf)
+    testset = CIFAR10("./data", train = True, download = True, transform = trf)
     return DataLoader(trainset, batch_size = 32, shuffle = True), DataLoader(testset)
 
 def load_model():
@@ -60,4 +60,4 @@ if __name__ == "__main__":
     trainloader, testloader = load_data()
     train(net, trainloader, 5)
     loss, accuracy = test(net, testloader)
-    print(f"Loss: {loss:.5f}, Accuracy: {accuracy:.3f}")
+    print(f"Loss: {loss:.5f}, Accuracy: {accuracy:.3f}") 

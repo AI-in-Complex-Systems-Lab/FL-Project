@@ -80,7 +80,7 @@ if __name__ == "__main__" :
 
 	# Define a MLP model
 	model = Sequential([
-		InputLayer(input_shape=(X_test_scaled.shape[1],)),
+		InputLayer(shape=(X_test_scaled.shape[1],)),
 		Dense(units=50, activation='relu'),
 		Dropout(0.2),
 		Dense(units=y_test_cat.shape[1], activation='softmax')
@@ -91,7 +91,7 @@ if __name__ == "__main__" :
 
 	# Define a FL strategy
 	strategy = fl.server.strategy.FedAvg(
-		min_available_clients=1,
+		min_available_clients=3,
 		evaluate_fn=get_evaluate_fn(model),
 		on_fit_config_fn=fit_round,
 	)

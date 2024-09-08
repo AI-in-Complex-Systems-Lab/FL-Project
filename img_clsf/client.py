@@ -2,7 +2,7 @@ from collections import OrderedDict
 import flwr as fl 
 import torch
 from centralized import load_data, load_model, train, test
-import json
+
 
 def set_parameters(model, parameters):
     params_dict = zip(model.state_dict().keys(), parameters)
@@ -27,19 +27,19 @@ class FlowerClient(fl.client.NumPyClient):
         return float(loss), len(testloader.dataset), {"accuracy": accuracy}
     
     
-# Read server address from the config file
-with open("server_config.json", "r") as f:
-    config = json.load(f)    
+# # Read server address from the config file
+# with open("server_config.json", "r") as f:
+#     config = json.load(f)    
 
-server_addr = config["server_address"]
+# server_addr = config["server_address"]
 
-#ip_address = '169.226.53.20'  # here you should write the server ip-address
-#server_addr=ip_address + ':8080'
+# #ip_address = '169.226.53.20'  # here you should write the server ip-address
+# #server_addr=ip_address + ':8080'
 
-# Print the server address
-print(f"Starting Flower server at {server_addr}")
+# # Print the server address
+# print(f"Starting Flower server at {server_addr}")
 
-fl.client.start_client(
-    server_address=server_addr,
-    client=FlowerClient().to_client(),
+fl.client.start_numpy_client(
+    server_address="127.0.0.1:8080",
+    client=FlowerClient(),
 )
