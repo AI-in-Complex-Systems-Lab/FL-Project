@@ -8,5 +8,6 @@ log/
 result/
 .conda/
 .venv/
+metrics/
 *.tar.gz
 .conda/lib/libbz2.1.0.8.dylib
