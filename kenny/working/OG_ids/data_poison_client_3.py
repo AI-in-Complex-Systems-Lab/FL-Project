@@ -2,7 +2,7 @@ import pandas as pd
 import random
 
 # Load the CSV file into a DataFrame
-df = pd.read_csv('/Users/guest1/Documents/GitHub/FL-Project/kenny/working/OG_ids/datasets/federated_datasets/client_train_data_3.csv')  # Replace 'your_file.csv' with the actual file path
+df = pd.read_csv('./FL-Project/kenny/working/OG_ids/datasets/federated_datasets/client_train_data_3.csv')  # Replace 'your_file.csv' with the actual file path
 
 # Count how many times '3' appears in the 'y' column
 count_three = df['y'].value_counts().get(3, 0)
@@ -119,6 +119,6 @@ for idx in indices_to_change:
     df.at[idx, 'y'] = new_value
 
 #Save the modified DataFrame back to CSV
-df.to_csv('PO_client_train_data_3.csv', index=False)  # Change the file name if needed
+df.to_csv('client_train_data_3p.csv', index=False)  # Change the file name if needed
 
-print("Modifications complete. Saved to 'PO_client_train_data_3.csv'.")
+print("Modifications complete. Saved to 'client_train_data_3p.csv'.")
