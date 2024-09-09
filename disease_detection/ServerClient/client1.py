@@ -8,6 +8,7 @@ from dataset import load_heart_disease_data
 from tensorflow.keras.layers import Dropout
 from tensorflow import keras
 from tensorflow.keras import layers
+from sklearn.metrics import f1_score
 
 # Load dataset using mydataset.py
 X, y = load_heart_disease_data()
@@ -48,7 +49,13 @@ class FlowerClient(fl.client.NumPyClient):
         model.set_weights(parameters)
         loss, accuracy = model.evaluate(X_test, y_test, verbose=0)
         print("Eval accuracy : ", accuracy)
-        return loss, len(X_test), {"accuracy": accuracy}
+        y_pred = model.predict(X_test)
+        y_pred_classes = np.argmax(y_pred, axis=1)
+        y_true_classes = np.argmax(y_test, axis=1)
+        f1 = f1_score(y_true_classes, y_pred_classes, average='weighted')
+        print("F1 Score : ", f1)
+
+        return loss, len(X_test), {"accuracy": accuracy, "f1_score": f1}
 
 # Start Flower client
 fl.client.start_numpy_client(
