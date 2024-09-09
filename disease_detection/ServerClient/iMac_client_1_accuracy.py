@@ -25,9 +25,9 @@ plt.figure(figsize=(12, 8))
 plt.subplot(2, 1, 1)
 
 for i in range(5):
-    plt.plot(accuracy[i], label=f'Round {i+1} Train Accuracy', marker = "o")
+    plt.plot(accuracy[i], label=f'Round {i+1} Training Accuracy', marker = "o")
 
-plt.title('Training and Validation Loss')
+plt.title('Training Accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.legend()
@@ -38,7 +38,7 @@ plt.subplot(2, 1, 2)
 for i in range(5):
     plt.plot(val_accuracy[i], label=f'Round {i+1} Validation Accuracy', marker = "o")
 
-plt.title('Training and Validation Accuracy')
+plt.title('Validation Accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.legend()

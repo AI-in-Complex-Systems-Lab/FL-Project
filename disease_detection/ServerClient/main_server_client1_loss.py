@@ -24,22 +24,24 @@ plt.subplot(2, 1, 1)
 for i in range(5):
     plt.plot(loss[i], label=f'Round {i+1} Train Loss', marker = "o")
 
-plt.title('Training and Validation Loss')
+plt.title('Training Loss')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.legend()
 plt.grid(True)
+plt.xticks(range(len(accuracy[0])))
 
 
 plt.subplot(2, 1, 2)
 for i in range(5):
-    plt.plot(val_loss[i], label=f'Round {i+1} Validation Loss', linestyle='dashed', marker = "o")
+    plt.plot(val_loss[i], label=f'Round {i+1} Validation Loss', marker = "o")
 
-plt.title('Training and Validation Accuracy')
+plt.title('Validation Loss')
 plt.xlabel('Epoch')
-plt.ylabel('Eval Loss')
+plt.ylabel('Loss')
 plt.legend()
 plt.grid(True)
+plt.xticks(range(len(accuracy[0])))
 
 plt.tight_layout()
 plt.show()
