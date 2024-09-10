@@ -79,7 +79,7 @@ if __name__ == "__main__" :
 	])
 
 	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-	early_stop = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=10)  
+	early_stop = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=3)  
 
 class Client(fl.client.NumPyClient):
     def __init__(self, client_id):
@@ -106,7 +106,7 @@ class Client(fl.client.NumPyClient):
         model.set_weights(parameters)
         history = model.fit(
             X_train_scaled, y_train_cat,
-            epochs=1,  # Set to 1 to fit one round per call
+            epochs=15,  # Set to 1 to fit one round per call
             validation_data=(X_test_scaled, y_test_cat),
             batch_size=64,
             callbacks=[early_stop],

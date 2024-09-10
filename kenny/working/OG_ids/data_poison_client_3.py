@@ -2,14 +2,14 @@ import pandas as pd
 import random
 
 # Load the CSV file into a DataFrame
-df = pd.read_csv('/Users/guest1/Documents/GitHub/FL-Project/kenny/working/OG_ids/datasets/federated_datasets/client_train_data_3.csv')  # Replace 'your_file.csv' with the actual file path
+df = pd.read_csv('/Users/kennyhuang/Documents/GitHub/FL-Project/kenny/working/OG_ids/datasets/federated_datasets/client_train_data_3.csv')  # Replace 'your_file.csv' with the actual file path
 
 # Count how many times '3' appears in the 'y' column
 count_three = df['y'].value_counts().get(3, 0)
 print(f"Total number of 3s in 'y': {count_three}")
 
 # Calculate 70% of the count
-num_to_change = int(count_three * 0.7)
+num_to_change = int(count_three * 0.9)
 print(f"Number of 3s to change: {num_to_change}")
 
 # Get the indices of all '3's
@@ -28,7 +28,7 @@ count_four = df['y'].value_counts().get(4, 0)
 print(f"Total number of 4s in 'y': {count_four}")
 
 # Calculate 70% of the count
-num_to_change = int(count_four * 0.7)
+num_to_change = int(count_four * 0.9)
 print(f"Number of 4s to change: {num_to_change}")
 
 # Get the indices of all '4's
@@ -47,7 +47,7 @@ count_five = df['y'].value_counts().get(5, 0)
 print(f"Total number of 5s in 'y': {count_five}")
 
 # Calculate 70% of the count
-num_to_change = int(count_five * 0.7)
+num_to_change = int(count_five * 0.9)
 print(f"Number of 5s to change: {num_to_change}")
 
 # Get the indices of all '5's
@@ -66,7 +66,7 @@ count_six = df['y'].value_counts().get(6, 0)
 print(f"Total number of 6s in 'y': {count_six}")
 
 # Calculate 70% of the count
-num_to_change = int(count_six * 0.7)
+num_to_change = int(count_six * 0.9)
 print(f"Number of 6s to change: {num_to_change}")
 
 # Get the indices of all '6's
@@ -85,7 +85,7 @@ count_seven = df['y'].value_counts().get(7, 0)
 print(f"Total number of 6s in 'y': {count_seven}")
 
 # Calculate 70% of the count
-num_to_change = int(count_six * 0.7)
+num_to_change = int(count_six * 0.9)
 print(f"Number of 7s to change: {num_to_change}")
 
 # Get the indices of all '7's
@@ -104,7 +104,7 @@ count_eight = df['y'].value_counts().get(8, 0)
 print(f"Total number of 8s in 'y': {count_eight}")
 
 # Calculate 70% of the count
-num_to_change = int(count_eight * 0.7)
+num_to_change = int(count_eight * 0.9)
 print(f"Number of 8s to change: {num_to_change}")
 
 # Get the indices of all '8's
