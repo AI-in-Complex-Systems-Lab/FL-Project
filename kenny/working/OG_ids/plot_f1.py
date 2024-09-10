@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+plt.rcParams.update({'font.size': 20, 'font.weight' : 'bold'})
 
 # Load the CSV file from the metrics folder
 df = pd.read_csv('/Users/guest1/Documents/GitHub/FL-Project/kenny/working/OG_ids/metrics/combined_f1_score.csv')  # Replace 'your_file_name.csv' with your actual file name
@@ -8,10 +9,10 @@ df = pd.read_csv('/Users/guest1/Documents/GitHub/FL-Project/kenny/working/OG_ids
 df_filtered = df[df['round'] % 5 == 0]
 
 # Create the plot
-plt.figure(figsize=(10, 6))
-plt.plot(df_filtered['round'], df_filtered['3_client_f1'], marker='o', label='3 Client')
-plt.plot(df_filtered['round'], df_filtered['4_client_f1'], marker='o', label='4 Client')
-plt.plot(df_filtered['round'], df_filtered['5_client_f1'], marker='o', label='5 Client')
+plt.figure(figsize=(10, 6), dpi= 600)
+plt.plot(df_filtered['round'], df_filtered['3_client_f1'], marker='o', label='3 Client', markersize=10, linewidth=3, alpha=0.9)
+plt.plot(df_filtered['round'], df_filtered['4_client_f1'], marker='o', label='4 Client', markersize=10, linewidth=3, alpha=0.9)
+plt.plot(df_filtered['round'], df_filtered['5_client_f1'], marker='o', label='5 Client', markersize=10, linewidth=3, alpha=0.9)
 
 # Set plot title and labels
 #plt.title('F1 Score Per 5 Rounds')

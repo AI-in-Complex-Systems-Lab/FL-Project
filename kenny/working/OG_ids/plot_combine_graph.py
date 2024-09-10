@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+plt.rcParams.update({'font.size': 20, 'font.weight' : 'bold'})
 
 # Define the path to the metrics folder
 metrics_dir = "metrics"
@@ -59,11 +60,11 @@ for client_id in client_ids:
 
 # Helper function to plot metrics
 def plot_metrics(metric_name, ylabel, y_limits=None):
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(12, 6), dpi= 600)
     for client_id in sorted(client_ids):
         client_label = f'Client {client_id}'
         if client_label in all_data[metric_name]:
-            plt.plot(all_rounds, all_data[metric_name][client_label], label=client_label, marker='o')
+            plt.plot(all_rounds, all_data[metric_name][client_label], label=client_label, marker='o', markersize=10, linewidth=3, alpha=0.9)
     #plt.xlabel('Rounds')
     #plt.ylabel(ylabel)
     #plt.title(f'{ylabel} of All Clients over Rounds')
@@ -76,9 +77,9 @@ def plot_metrics(metric_name, ylabel, y_limits=None):
     plt.close()
 
 # Plot all metrics with specified y-axis limits
-plot_metrics('train_loss', 'Train Loss', y_limits=(0, 3))
+plot_metrics('train_loss', 'Train Loss', y_limits=(0.6, 0.8))
 plot_metrics('train_accuracy', 'Train Accuracy', y_limits=(0, 1))
-plot_metrics('eval_loss', 'Evaluation Loss', y_limits=(0, 2))
-plot_metrics('eval_accuracy', 'Evaluation Accuracy', y_limits=(0, 1))
-plot_metrics('f1_score', 'F1 Score', y_limits=(0, 1))
+plot_metrics('eval_loss', 'Evaluation Loss', y_limits=(0.475, 0.6))
+plot_metrics('eval_accuracy', 'Evaluation Accuracy', y_limits=(0.6, 0.8))
+plot_metrics('f1_score', 'F1 Score', y_limits=(0.6, 0.8))
 
