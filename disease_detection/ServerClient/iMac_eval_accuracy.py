@@ -9,7 +9,7 @@ plt.figure(figsize=(12, 8))
 plt.subplot(2, 1, 1)
 
 plt.plot(range(1, 6), cl1, label='Client 1', marker="o")
-plt.plot(range(1, 6), cl2, label='Client 1', marker="o")
+plt.plot(range(1, 6), cl2, label='Client 2', marker="o")
 
 plt.title('Evaluation Accuracy Over 5 Rounds')
 plt.xlabel('Epoch')
