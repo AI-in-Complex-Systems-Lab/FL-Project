@@ -2,19 +2,19 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Load the CSV file from the metrics folder
-df = pd.read_csv('/Users/kennyhuang/Documents/GitHub/FL-Project/kenny/working/OG_ids/metrics/combined_eval_accuracy.csv')  # Replace 'your_file_name.csv' with your actual file name
+df = pd.read_csv('/Users/guest1/Documents/GitHub/FL-Project/kenny/working/OG_ids/metrics/combined_eval_accuracy.csv')  # Replace 'your_file_name.csv' with your actual file name
 
 # Filter rows to only include every 5th round
 df_filtered = df[df['round'] % 5 == 0]
 
 # Create the plot
 plt.figure(figsize=(10, 6))
-plt.plot(df_filtered['round'], df_filtered['3_client_eval_accuracy'], marker='o', label='3 Client Eval Accuracy')
-plt.plot(df_filtered['round'], df_filtered['4_client_eval_accuracy'], marker='o', label='4 Client Eval Accuracy')
-plt.plot(df_filtered['round'], df_filtered['5_client_eval_accuracy'], marker='o', label='5 Client Eval Accuracy')
+plt.plot(df_filtered['round'], df_filtered['3_client_eval_accuracy'], marker='o', label='3 Client')
+plt.plot(df_filtered['round'], df_filtered['4_client_eval_accuracy'], marker='o', label='4 Client')
+plt.plot(df_filtered['round'], df_filtered['5_client_eval_accuracy'], marker='o', label='5 Client')
 
 # Set plot title and labels
-plt.title('Evaluation Accuracy Per 5 Rounds')
+#plt.title('Evaluation Accuracy Per 5 Rounds')
 plt.xlabel('Round')
 plt.ylabel('Accuracy')
 

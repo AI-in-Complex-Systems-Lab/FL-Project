@@ -66,7 +66,7 @@ def plot_metrics(metric_name, ylabel, y_limits=None):
             plt.plot(all_rounds, all_data[metric_name][client_label], label=client_label, marker='o')
     plt.xlabel('Rounds')
     plt.ylabel(ylabel)
-    plt.title(f'{ylabel} of All Clients over Rounds')
+    #plt.title(f'{ylabel} of All Clients over Rounds')
     plt.legend()
     plt.grid(True)
     plt.xticks(range(0, max(all_rounds) + 1, 5))  # Set x-axis ticks to specified values
