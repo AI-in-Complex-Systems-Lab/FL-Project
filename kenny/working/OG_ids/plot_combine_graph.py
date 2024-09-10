@@ -58,7 +58,7 @@ for client_id in client_ids:
     all_data['f1_score'][f'Client {client_id}'] = f1_scores_filtered
 
 # Helper function to plot metrics
-def plot_metrics(metric_name, ylabel):
+def plot_metrics(metric_name, ylabel, y_limits=None):
     plt.figure(figsize=(12, 6))
     for client_id in sorted(client_ids):
         client_label = f'Client {client_id}'
@@ -70,12 +70,15 @@ def plot_metrics(metric_name, ylabel):
     plt.legend()
     plt.grid(True)
     plt.xticks(range(0, max(all_rounds) + 1, 5))  # Set x-axis ticks to specified values
+    if y_limits:
+        plt.ylim(y_limits)  # Set y-axis limits if specified
     plt.savefig(os.path.join(metrics_dir, f'all_clients_{metric_name}_plot.png'))
     plt.close()
 
-# Plot all metrics
-plot_metrics('train_loss', 'Train Loss')
-plot_metrics('train_accuracy', 'Train Accuracy')
-plot_metrics('eval_loss', 'Evaluation Loss')
-plot_metrics('eval_accuracy', 'Evaluation Accuracy')
-plot_metrics('f1_score', 'F1 Score')
+# Plot all metrics with specified y-axis limits
+plot_metrics('train_loss', 'Train Loss', y_limits=(0, 2.5))
+plot_metrics('train_accuracy', 'Train Accuracy', y_limits=(0.2, 0.7))
+plot_metrics('eval_loss', 'Evaluation Loss', y_limits=(0.9, 1.8))
+plot_metrics('eval_accuracy', 'Evaluation Accuracy', y_limits=(0.4, 0.7))
+plot_metrics('f1_score', 'F1 Score', y_limits=(0.3, 0.7))
+
