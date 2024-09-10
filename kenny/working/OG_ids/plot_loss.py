@@ -23,7 +23,7 @@ plt.xticks([0, 5, 10, 15, 20])
 plt.xlim(-2, 22)  # Adds padding before 0 and after 20
 
 # Set y-axis range
-plt.ylim(1, 3)
+plt.ylim(0.5, 3)
 
 # Display grid and legend
 plt.grid(True)
