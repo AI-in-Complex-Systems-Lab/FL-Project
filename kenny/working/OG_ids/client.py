@@ -83,7 +83,7 @@ if __name__ == "__main__" :
 	])
 
 	model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
-	early_stop = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=2)  
+	early_stop = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=10)  
 
 class Client(fl.client.NumPyClient):
     def __init__(self, client_id):
