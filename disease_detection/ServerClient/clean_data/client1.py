@@ -67,7 +67,7 @@ with open("server_config.json", "r") as f:
     config = json.load(f)
 
 server_addr = config["server_address"]
-print(f"Starting Flower server at {server_addr}")
+print(f'Starting Flower server at {server_addr}')
 
 # Start Flower client for client 1
 fl.client.start_client(
