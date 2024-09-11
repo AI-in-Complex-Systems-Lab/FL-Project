@@ -16,7 +16,7 @@ import flwr as fl
 import json
 import csv
 
-learning_rate = 0.0001
+learning_rate = 0.0005
 optimizer = Adam(learning_rate=learning_rate)
 
 # Define the base directory as the current directory of the script
