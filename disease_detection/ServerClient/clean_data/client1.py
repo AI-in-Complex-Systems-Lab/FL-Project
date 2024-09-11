@@ -19,7 +19,7 @@ X_client1, X_client2, y_client1, y_client2 = train_test_split(X, y, test_size=0.
 
 # Split client1 data into training and test sets
 X_train_client1, X_test_client1, y_train_client1, y_test_client1 = train_test_split(X_client1, y_client1, test_size=0.2, random_state=43)
-print(f"Client 1 training on {len(X_train_client1)} samples")
+# print(f"Client 1 training on {len(X_train_client1)} samples")
 
 # Load and compile Keras model for client 1
 model_client1 = keras.Sequential([
