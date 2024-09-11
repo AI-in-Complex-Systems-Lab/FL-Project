@@ -8,6 +8,9 @@ from tensorflow import keras
 from tensorflow.keras import layers
 from sklearn.metrics import f1_score
 
+import json
+import socket
+
 # Load dataset using your mydataset.py
 X, y = load_heart_disease_data()
 
@@ -59,9 +62,16 @@ class FlowerClient1(fl.client.NumPyClient):
 
         return loss, len(X_test_client1), {"accuracy": accuracy, "f1_score": f1}
 
+
+with open("server_config.json", "r") as f:
+    config = json.load(f)
+
+server_addr = config["server_address"]
+print(f"Starting Flower server at {server_addr}")
+
 # Start Flower client for client 1
-fl.client.start_numpy_client(
-    server_address="localhost:8082", 
+fl.client.start_client(
+    server_address=server_addr, 
     client=FlowerClient1(), 
-    grpc_max_message_length=1024*1024*1024
 )
+    
