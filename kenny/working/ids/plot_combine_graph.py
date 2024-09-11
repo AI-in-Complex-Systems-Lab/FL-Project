@@ -64,7 +64,7 @@ def plot_metrics(metric_name, ylabel, y_limits=None):
     for client_id in sorted(client_ids):
         client_label = f'Client {client_id}'
         if client_label in all_data[metric_name]:
-            plt.plot(all_rounds, all_data[metric_name][client_label], label=client_label, marker='o', markersize=10, linewidth=3, alpha=0.9)
+            plt.plot(all_rounds, all_data[metric_name][client_label], label=client_label, marker='o', markersize=15, linewidth=5, alpha=0.8)
     #plt.xlabel('Rounds')
     #plt.ylabel(ylabel)
     #plt.title(f'{ylabel} of All Clients over Rounds')
@@ -79,7 +79,7 @@ def plot_metrics(metric_name, ylabel, y_limits=None):
 # Plot all metrics with specified y-axis limits
 #plot_metrics('train_loss', 'Train Loss', y_limits=(0.6, 0.8))
 #plot_metrics('train_accuracy', 'Train Accuracy', y_limits=(0, 1))
-plot_metrics('eval_loss', 'Evaluation Loss', y_limits=(0.5, 1.6))
-plot_metrics('eval_accuracy', 'Evaluation Accuracy', y_limits=(0.4, 0.72))
-plot_metrics('f1_score', 'F1 Score', y_limits=(0.3, 0.68))
+plot_metrics('eval_loss', 'Evaluation Loss', y_limits=(0.5, 1.4))
+plot_metrics('eval_accuracy', 'Evaluation Accuracy', y_limits=(0.55, 0.75))
+plot_metrics('f1_score', 'F1 Score', y_limits=(0.5, 0.7))
 
