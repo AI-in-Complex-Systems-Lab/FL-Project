@@ -77,8 +77,8 @@ def plot_metrics(metric_name, ylabel, y_limits=None):
     plt.close()
 
 # Plot all metrics with specified y-axis limits
-plot_metrics('train_loss', 'Train Loss', y_limits=(0.6, 0.8))
-plot_metrics('train_accuracy', 'Train Accuracy', y_limits=(0, 1))
+#plot_metrics('train_loss', 'Train Loss', y_limits=(0.6, 0.8))
+#plot_metrics('train_accuracy', 'Train Accuracy', y_limits=(0, 1))
 plot_metrics('eval_loss', 'Evaluation Loss', y_limits=(0.5, 1.6))
 plot_metrics('eval_accuracy', 'Evaluation Accuracy', y_limits=(0.4, 0.72))
 plot_metrics('f1_score', 'F1 Score', y_limits=(0.3, 0.68))

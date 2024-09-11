@@ -11,9 +11,13 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import InputLayer, Dense, Dropout
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.optimizers import Adam
 import flwr as fl
 import json
 import csv
+
+learning_rate = 0.0001
+optimizer = Adam(learning_rate=learning_rate)
 
 # Define the base directory as the current directory of the script
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -78,8 +82,8 @@ if __name__ == "__main__" :
 		Dense(units=y_train_cat.shape[1], activation='softmax')
 	])
 
-	model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-	early_stop = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=3)  
+	model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+	early_stop = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=2)  
 
 class Client(fl.client.NumPyClient):
     def __init__(self, client_id):

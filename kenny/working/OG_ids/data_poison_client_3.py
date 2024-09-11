@@ -9,7 +9,7 @@ count_three = df['y'].value_counts().get(3, 0)
 print(f"Total number of 3s in 'y': {count_three}")
 
 # Calculate 70% of the count
-num_to_change = int(count_three * 0.9)
+num_to_change = int(count_three * 0.7)
 print(f"Number of 3s to change: {num_to_change}")
 
 # Get the indices of all '3's
@@ -28,7 +28,7 @@ count_four = df['y'].value_counts().get(4, 0)
 print(f"Total number of 4s in 'y': {count_four}")
 
 # Calculate 70% of the count
-num_to_change = int(count_four * 0.9)
+num_to_change = int(count_four * 0.7)
 print(f"Number of 4s to change: {num_to_change}")
 
 # Get the indices of all '4's
@@ -47,7 +47,7 @@ count_five = df['y'].value_counts().get(5, 0)
 print(f"Total number of 5s in 'y': {count_five}")
 
 # Calculate 70% of the count
-num_to_change = int(count_five * 0.9)
+num_to_change = int(count_five * 0.7)
 print(f"Number of 5s to change: {num_to_change}")
 
 # Get the indices of all '5's
@@ -66,7 +66,7 @@ count_six = df['y'].value_counts().get(6, 0)
 print(f"Total number of 6s in 'y': {count_six}")
 
 # Calculate 70% of the count
-num_to_change = int(count_six * 0.9)
+num_to_change = int(count_six * 0.7)
 print(f"Number of 6s to change: {num_to_change}")
 
 # Get the indices of all '6's
@@ -104,7 +104,7 @@ count_eight = df['y'].value_counts().get(8, 0)
 print(f"Total number of 8s in 'y': {count_eight}")
 
 # Calculate 70% of the count
-num_to_change = int(count_eight * 0.9)
+num_to_change = int(count_eight * 0.7)
 print(f"Number of 8s to change: {num_to_change}")
 
 # Get the indices of all '8's
