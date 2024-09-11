@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 20, 'font.weight' : 'bold'})
 
 # Load the CSV file from the metrics folder
-df = pd.read_csv('/Users/guest1/Documents/GitHub/FL-Project/kenny/working/OG_ids/metrics/combined_eval_accuracy.csv')  # Replace 'your_file_name.csv' with your actual file name
+df = pd.read_csv('/Users/guest1/Documents/GitHub/FL-Project/kenny/working/ids/metrics/combined_eval_accuracy.csv')  # Replace 'your_file_name.csv' with your actual file name
 
 # Filter rows to only include every 5th round
 df_filtered = df[df['round'] % 5 == 0]
@@ -24,7 +24,7 @@ plt.xticks([0, 5, 10, 15, 20])
 plt.xlim(-2, 22)  # Adds padding before 0 and after 20
 
 # Set y-axis range
-plt.ylim(0, 0.7)
+plt.ylim(0, 0.75)
 
 # Display grid and legend
 plt.grid(True)
