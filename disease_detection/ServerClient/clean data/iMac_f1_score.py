@@ -9,10 +9,10 @@ plt.figure(figsize=(12, 8))
 plt.subplot(2, 1, 1)
 
 plt.plot(range(1, 6), cl1, label='Client 1', marker="o")
-plt.plot(range(1, 6), cl2, label='Client 1', marker="o")
+plt.plot(range(1, 6), cl2, label='Client 2', marker="o")
 
-plt.title('F1 Score Over 5 Rounds')
-plt.xlabel('Epoch')
+plt.title('F1 Score Over 5 Rounds on Clean data')
+plt.xlabel('Rounds')
 plt.ylabel('F1')
 plt.legend()
 plt.grid(True)

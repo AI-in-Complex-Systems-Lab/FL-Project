@@ -27,6 +27,8 @@ model_client2 = keras.Sequential([
     layers.Dense(2, activation='sigmoid')
 ])
 
+print(f"This is the shape{X_train_client2.shape}")
+
 model_client2.compile(
     loss="categorical_crossentropy",
     optimizer="adam",
