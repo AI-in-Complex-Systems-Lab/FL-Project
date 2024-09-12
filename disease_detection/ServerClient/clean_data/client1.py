@@ -48,7 +48,7 @@ class FlowerClient1(fl.client.NumPyClient):
         hist = r.history
         print("Fit history : ", hist)
         return model_client1.get_weights(), len(X_train_client1), {}
-
+        
     def evaluate(self, parameters, config):
         print("\n\n\n----------------  Test ----------------- ")
         model_client1.set_weights(parameters)
