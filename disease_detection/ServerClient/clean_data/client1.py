@@ -66,6 +66,16 @@ class FlowerClient1(fl.client.NumPyClient):
 with open("server_config.json", "r") as f:
     config = json.load(f)
 
+
+import socket
+
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect(('169.226.237.129', 8080))
+response = client_socket.recv(1024)
+print(response.decode('utf-8'))
+client_socket.close()
+
+
 server_addr = config["server_address"]
 #print(f'Starting Flower server at {server_addr}')
 

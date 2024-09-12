@@ -19,6 +19,38 @@ import json
 import csv
 
 
+
+import argparse
+
+parser = argparse.ArgumentParser(description='Flower server')
+parser.add_argument('--address', type=str, default='169.226.237.129', help='Server IP address')
+parser.add_argument('--port', type=int, default=8080, help='Server port')
+parser.add_argument('--rounds', type=int, default=20, help='Number of rounds')
+args = parser.parse_args()
+
+
+import socket
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind(('0.0.0.0', 8080))
+server_socket.listen(1)
+print("Server listening on port 8080")
+
+while True:
+    client_socket, addr = server_socket.accept()
+    print(f"Connection from {addr}")
+    client_socket.sendall(b"Hello from server")
+    client_socket.close()
+
+
+ip_address = args.address
+server_addr = f"{ip_address}:{args.port}"
+
+config = {"ip_address": args.address, "server_address": server_addr}
+with open("server_config.json", "w") as f:
+    json.dump(config, f)
+
+
 def get_ip_address():
     try:
         # Connect to an external server to determine the local IP address used for that connection
