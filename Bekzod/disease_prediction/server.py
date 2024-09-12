@@ -18,34 +18,7 @@ def get_ip_address():
     return ip_address
 
 # Split train_data.csv into three equal parts
-def split_train_data():
-    # Load the training data
-    train_data_path = 'dataset/train_data.csv'
-    
-    # Check if the file exists
-    if not os.path.exists(train_data_path):
-        print(f"Error: {train_data_path} not found.")
-        sys.exit(1)
-    
-    # Read the training data
-    df = pd.read_csv(train_data_path)
-    
-    # Split the data into three parts
-    num_rows = len(df)
-    split_size = num_rows // 3
 
-    # Split the data
-    df_1 = df.iloc[:split_size]
-    df_2 = df.iloc[split_size:2*split_size]
-    df_3 = df.iloc[2*split_size:]
-    
-    # Save the splits to CSV files
-    df_1.to_csv('dataset/client_train_data_1.csv', index=False)
-    df_2.to_csv('dataset/client_train_data_2.csv', index=False)
-    df_3.to_csv('dataset/client_train_data_3.csv', index=False)
-
-# Perform the split
-split_train_data()
 
 '''
 class SaveModelStrategy(fl.server.strategy.FedAvg):
@@ -76,9 +49,9 @@ ip_address = get_ip_address()
 server_addr=ip_address + ':8080' 
 
 # Write server address to a config file
-config = {"server_address": server_addr}
+config = {"ip_address": ip_address,"server_address": server_addr}
 with open("server_config.json", "w") as f:
-    json.dump(config, f)
+	json.dump(config, f)
 
 # Print the server address
 print(f"Starting Flower server at {server_addr}")
