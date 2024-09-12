@@ -67,6 +67,32 @@ with open("server_config.json", "r") as f:
     config = json.load(f)
 
 
+import pickle
+import os
+from sklearn.linear_model import LogisticRegression  # Example model
+from sklearn.metrics import accuracy_score
+
+# Initialize model (or load previous model state if available)
+model = LogisticRegression()
+
+# Train using saved batches
+batch_files = sorted([f for f in os.listdir() if f.startswith('batch_')])
+for batch_file in batch_files:
+    # Load each batch without loading the entire dataset
+    with open(batch_file, 'rb') as f:
+        X_batch, y_batch = pickle.load(f)
+
+    # Train the model on the batch
+    model.fit(X_batch, y_batch)
+    print(f"Trained on {batch_file}")
+
+# Save the trained model for future use
+with open("trained_model.pkl", "wb") as model_file:
+    pickle.dump(model, model_file)
+
+print("Training complete and model saved.")
+
+
 import socket
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
