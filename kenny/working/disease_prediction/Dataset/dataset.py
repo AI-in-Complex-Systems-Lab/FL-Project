@@ -11,7 +11,7 @@ def load_heart_disease_data():
     os.makedirs('dataset', exist_ok=True)
     
     # Import the dataset from the 'dataset' folder
-    df = pd.read_csv('dataset/HeartDisease.csv')
+    df = pd.read_csv('/Users/kennyhuang/Documents/GitHub/FL-Project/kenny/working/disease_prediction/Dataset/HeartDisease.csv')
 
     # Split data into features (X) and labels (y)
     X = df.drop(['HeartDisease'], axis=1)
