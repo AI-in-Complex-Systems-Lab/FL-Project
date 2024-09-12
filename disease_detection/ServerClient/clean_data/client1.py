@@ -96,7 +96,7 @@ print("Training complete and model saved.")
 import socket
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect(('169.226.53.85', 8080))
+client_socket.connect(('169.226.237.129', 8080))
 response = client_socket.recv(1024)
 print(response.decode('utf-8'))
 client_socket.close()
