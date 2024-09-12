@@ -8,6 +8,13 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.utils import to_categorical
 
+label_encoder = LabelEncoder()
+for col in categorical_columns:
+        data[col] = label_encoder.fit_transform(data[col])
+    X = data.drop("HeartDisease", axis=1)
+    y = data["HeartDisease"]
+    return train_test_split(X, y, test_size=0.2, random_state=42)
+
 def load_heart_disease_data():
     
     # import the dataset

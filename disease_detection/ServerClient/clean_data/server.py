@@ -195,12 +195,7 @@ def load_and_preprocess_data():
         "Sex", "AgeCategory", "Race", "Diabetic", "PhysicalActivity",
         "GenHealth", "Asthma", "KidneyDisease", "SkinCancer"
     ]
-    label_encoder = LabelEncoder()
-    for col in categorical_columns:
-        data[col] = label_encoder.fit_transform(data[col])
-    X = data.drop("HeartDisease", axis=1)
-    y = data["HeartDisease"]
-    return train_test_split(X, y, test_size=0.2, random_state=42)
+    
 
 import os
 
@@ -223,6 +218,7 @@ def main():
     parser.add_argument('--address', type=str, default='169.226.237.129', help='Server IP address')
     parser.add_argument('--port', type=int, default=8080, help='Server port')
     parser.add_argument('--rounds', type=int, default=20, help='Number of rounds')
+    
     args = parser.parse_args()
 
     # Save configuration
