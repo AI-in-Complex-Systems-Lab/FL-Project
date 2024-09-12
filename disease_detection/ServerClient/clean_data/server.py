@@ -51,6 +51,41 @@ with open("server_config.json", "w") as f:
     json.dump(config, f)
 
 
+
+
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+import pickle
+import os
+
+# Load and preprocess the dataset on a server
+data = pd.read_csv("HeartDisease.csv")
+
+# Encode categorical features
+categorical_columns = ["HeartDisease", "Smoking", "AlcoholDrinking", "Stroke", "DiffWalking", 
+                       "Sex", "AgeCategory", "Race", "Diabetic", "PhysicalActivity", 
+                       "GenHealth", "Asthma", "KidneyDisease", "SkinCancer"]
+label_encoder = LabelEncoder()
+for col in categorical_columns:
+    data[col] = label_encoder.fit_transform(data[col])
+
+# Split data into train and test sets
+X = data.drop("HeartDisease", axis=1)
+y = data["HeartDisease"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Save batches of training data to be sent to JetBots
+batch_size = 64
+for i in range(0, len(X_train), batch_size):
+    batch = (X_train[i:i + batch_size], y_train[i:i + batch_size])
+    with open(f'batch_{i//batch_size}.pkl', 'wb') as f:
+        pickle.dump(batch, f)
+
+print("Training batches saved for JetBots to load individually.")
+
+
+
 def get_ip_address():
     try:
         # Connect to an external server to determine the local IP address used for that connection
@@ -101,8 +136,9 @@ server_addr=ip_address + ':8080'
 
 
 # Print the server address
-print(f"Starting Flower server at {args.}")
+
 server_addr = f"{args.address}:{args.port}"
+print(f"Starting Flower server at {args.server_addr}")
 
 config = {"ip_address": args.address, "server_address": server_addr}
 with open("server_config.json", "w") as f:
