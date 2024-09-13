@@ -53,10 +53,10 @@ if args.port < 0 or args.port > 65535:
 if not os.path.isdir(args.dataset):
 	sys.exit(f"Wrong path to directory with datasets: {args.dataset}")
 
-if args.id == 3:
-      df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_3p.csv'))
-else:
-    df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_{args.id}.csv'))
+# if args.id == 3:
+#       df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_3p.csv'))
+# else:
+df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_{args.id}.csv'))
 
 df_test = pd.read_csv(os.path.join(args.dataset, 'test_data.csv'))
 
