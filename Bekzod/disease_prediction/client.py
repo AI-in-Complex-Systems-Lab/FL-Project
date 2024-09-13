@@ -41,7 +41,7 @@ if __name__ == "__main__" :
 	parser.add_argument("-a", "--address", help="Aggregator server's IP address", default=get_ip_address_from_json())
 	parser.add_argument("-p", "--port", help="Aggregator server's serving port", default=8080, type=int)
 	parser.add_argument("-i", "--id", help="client ID", default=1, type=int)
-	parser.add_argument("-d", "--dataset", help="dataset directory", default="/Users/guest2/Desktop/FL-Project/Bekzod/disease_prediction/dataset")
+	parser.add_argument("-d", "--dataset", help="dataset directory", default="/home/jetbot/Desktop/FL-Project/Bekzod/disease_prediction/dataset")
 	args = parser.parse_args()
     
 try:
