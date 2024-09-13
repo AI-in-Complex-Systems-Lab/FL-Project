@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 20, 'font.weight' : 'bold'})
 
 # Load the CSV file from the metrics folder
-df = pd.read_csv('/Users/guest1/Documents/GitHub/FL-Project/kenny/working/ids/metrics/70PO_1e/combined_NO/combined_eval_accuracy.csv')  # Replace 'your_file_name.csv' with your actual file name
+df = pd.read_csv('/Users/guest1/Documents/GitHub/FL-Project/kenny/working/ids/metrics/combined_eval_accuracy.csv')  # Replace 'your_file_name.csv' with your actual file name
 
 # Filter rows to only include every 5th round
 df_filtered = df[df['round'] % 5 == 0]

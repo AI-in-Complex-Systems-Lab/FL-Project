@@ -55,6 +55,8 @@ if args.port < 0 or args.port > 65535:
 if not os.path.isdir(args.dataset):
 	sys.exit(f"Wrong path to directory with datasets: {args.dataset}")
 
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 # if args.id == 3:
 #       df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_3p.csv'))
 # else:
@@ -62,8 +64,8 @@ df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_{args.id}.
 
 df_test = pd.read_csv(os.path.join(args.dataset, 'test_data.csv'))
 
-print(df_train.columns)
-print(df_test.columns)
+# print(df_train.columns)
+# print(df_test.columns)
 
 X_train = df_train.drop(columns=['HeartDisease']).to_numpy()
 y_train = df_train['HeartDisease'].to_numpy()
@@ -114,13 +116,11 @@ class FlowerClient(fl.client.NumPyClient):
         model.set_weights(parameters)
         r = model.fit(X_train_scaled, y_train_cat, epochs=20, validation_data=(X_test_scaled, y_test_cat), verbose=0, batch_size=64, callbacks=[early_stop])
         hist = r.history
-        train_loss = hist.get('loss', [None])[-1]
-        train_accuracy = hist.get('accuracy', [None])[-1]
+        train_loss = hist.get('loss', [None])[0]
+        train_accuracy = hist.get('accuracy', [None])[0]
         round_number = config.get("server_round", None)
-        print("Fit history: ", hist)
+        # print("Fit history: ", hist)
         print(f"Training finished for round {round_number} on client {self.client_id}")
-        # Optionally save train metrics
-        self.save_metrics(round_number, train_loss, train_accuracy, None, None, None)
         return model.get_weights(), len(X_train_scaled), {}
 
     def evaluate(self, parameters, config):
@@ -128,11 +128,6 @@ class FlowerClient(fl.client.NumPyClient):
         model.set_weights(parameters)
         loss, accuracy = model.evaluate(X_test_scaled, y_test_cat, verbose=0)
         f1 = f1_score(y_test, np.argmax(model.predict(X_test_scaled), axis=1), average='weighted')
-    
-        # Save metrics to client file
-        round_number = config.get("server_round", None)
-        self.save_metrics(round_number, None, None, loss, accuracy, f1)
-    
         print(f"Evaluation results for client {self.client_id}: Loss = {loss}, Accuracy = {accuracy}, F1-Score = {f1}")
         return loss, len(X_test_scaled), {"accuracy": accuracy, "f-1 score": f1}
 
@@ -140,7 +135,7 @@ class FlowerClient(fl.client.NumPyClient):
 # Read server address from the config file
 
 # Print the server address
-print(f"Starting Flower server at {args.address}:{args.port}")
+print(f"Connecting to server at {args.address}:{args.port}")
 client_id = args.id
 
 # Start Flower client
