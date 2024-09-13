@@ -21,7 +21,7 @@ import flwr as fl
 import json
 import csv
 
-from server import save_metrics
+# from server import save_metrics
 
 learning_rate = 0.001
 optimizer = Adam(learning_rate=learning_rate)
@@ -38,22 +38,22 @@ def get_ip_address_from_json():
     return ip_addr
 
 
-if __name__ == "__main__" :
-	parser = argparse.ArgumentParser(description='Flower straggler / client implementation')
-	parser.add_argument("-a", "--address", help="Aggregator server's IP address", default=get_ip_address_from_json())
-	parser.add_argument("-p", "--port", help="Aggregator server's serving port", default=8080, type=int)
-	parser.add_argument("-i", "--id", help="client ID", default=1, type=int)
-	parser.add_argument("-d", "--dataset", help="dataset directory", default="/Users/guest1/Documents/GitHub/FL-Project/Bekzod/disease_prediction/Dataset")
-	args = parser.parse_args()
+# if __name__ == "__main__" :
+# 	parser = argparse.ArgumentParser(description='Flower straggler / client implementation')
+# 	parser.add_argument("-a", "--address", help="Aggregator server's IP address", default=get_ip_address_from_json())
+# 	parser.add_argument("-p", "--port", help="Aggregator server's serving port", default=8080, type=int)
+# 	parser.add_argument("-i", "--id", help="client ID", default=1, type=int)
+# 	parser.add_argument("-d", "--dataset", help="dataset directory", default="/Users/guest2/Desktop/FL-Project/Bekzod/disease_prediction/dataset")
+# 	args = parser.parse_args()
     
-try:
-	ipaddress.ip_address(args.address)
-except ValueError:
-	sys.exit(f"Wrong IP address: {args.address}")
-if args.port < 0 or args.port > 65535:
-	sys.exit(f"Wrong serving port: {args.port}")
-if not os.path.isdir(args.dataset):
-	sys.exit(f"Wrong path to directory with datasets: {args.dataset}")
+# try:
+# 	ipaddress.ip_address(args.address)
+# except ValueError:
+# 	sys.exit(f"Wrong IP address: {args.address}")
+# if args.port < 0 or args.port > 65535:
+# 	sys.exit(f"Wrong serving port: {args.port}")
+# if not os.path.isdir(args.dataset):
+# 	sys.exit(f"Wrong path to directory with datasets: {args.dataset}")
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
@@ -67,10 +67,7 @@ df_test = pd.read_csv(os.path.join(args.dataset, 'test_data.csv'))
 # print(df_train.columns)
 # print(df_test.columns)
 
-X_train = df_train.drop(columns=['HeartDisease']).to_numpy()
-y_train = df_train['HeartDisease'].to_numpy()
-X_test = df_test.drop(columns=['HeartDisease']).to_numpy()
-y_test = df_test['HeartDisease'].to_numpy()
+
 
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)

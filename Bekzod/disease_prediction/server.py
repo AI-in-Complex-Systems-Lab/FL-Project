@@ -1,21 +1,25 @@
-# server 
-import flwr as fl
+import tensorflow as tf
+from sklearn.model_selection import train_test_split
+from dataset import load_heart_disease_data
+from tensorflow import keras
+from tensorflow.keras import layers
+import argparse
+import ipaddress
+import os
+import sys
+from typing import Dict
 import numpy as np
 import pandas as pd
-import socket
-import json
-from typing import Dict
-import os 
-import sys
+from sklearn.metrics import f1_score
+from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import InputLayer, Dense, Dropout
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping
-from sklearn.metrics import f1_score
 from tensorflow.keras.optimizers import Adam
-from tensorflow import keras
-from tensorflow.keras import layers
-import tensorflow as tf
+import flwr as fl
+import json
+import csv
 
 def get_ip_address():
     try:
@@ -91,8 +95,27 @@ if __name__ == "__main__" :
 	parser.add_argument("-a", "--address", help="IP address", default=get_ip_address())
 	parser.add_argument("-p", "--port", help="Serving port", default=8080, type=int)
 	parser.add_argument("-r", "--rounds", help="Number of training and aggregation rounds", default=20, type=int)
-	parser.add_argument("-d", "--dataset", help="dataset directory", default=ids_dnp3_federated_datasets_path)
+	parser.add_argument("-d", "--dataset", help="dataset directory", default="/Users/guest2/Desktop/FL-Project/Bekzod/disease_prediction/dataset")
 	args = parser.parse_args()
+        
+try:
+	ipaddress.ip_address(args.address)
+except ValueError:
+	sys.exit(f"Wrong IP address: {args.address}")
+if args.port < 0 or args.port > 65535:
+	sys.exit(f"Wrong serving port: {args.port}")
+if args.rounds < 0:
+	sys.exit(f"Wrong number of rounds: {args.rounds}")
+if not os.path.isdir(args.dataset):
+	sys.exit(f"Wrong path to directory with datasets: {args.dataset}")
+      
+	df_train = pd.read_csv(os.path.join(args.dataset, 'train_data.csv'))
+	df_test = pd.read_csv(os.path.join(args.dataset, 'test_data.csv'))
+      
+X_train = df_train.drop(['HeartDisease']).to_numpy()
+y_train = df_train['HeartDisease'].to_numpy()
+X_test = df_test.drop(columns=['HeartDisease']).to_numpy()
+y_test = df_test['HeartDisease'].to_numpy()
 
     
 def weighted_average(metrics):
