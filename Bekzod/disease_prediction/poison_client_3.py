@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 
-df = pd.read_csv('/Users/guest1/Documents/GitHub/FL-Project/Bekzod/disease_prediction/Dataset/client_train_data_3.csv')
+df = pd.read_csv('/Users/guest2/Desktop/FL-Project/Bekzod/disease_prediction/dataset/client_train_data_3.csv')
 
 # df.iloc[:, -1] = df.iloc[:, -1].apply(lambda x: 1 if x == 0 else (0 if x == 1 else x))
 
@@ -71,7 +71,7 @@ df.loc[ones_to_replace, last_column] = 0
 num_replaced_ones = len(ones_to_replace)
 
 
-df.to_csv('Dataset/client_train_data_3p.csv', index=False) 
+df.to_csv('dataset/client_train_data_3p.csv', index=False) 
 
 print("Modifications complete. Saved to 'client_train_data_3poisoned.csv'.")
 

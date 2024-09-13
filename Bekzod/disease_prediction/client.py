@@ -21,8 +21,6 @@ import flwr as fl
 import json
 import csv
 
-# from server import save_metrics
-
 learning_rate = 0.001
 optimizer = Adam(learning_rate=learning_rate)
 
@@ -38,36 +36,37 @@ def get_ip_address_from_json():
     return ip_addr
 
 
-# if __name__ == "__main__" :
-# 	parser = argparse.ArgumentParser(description='Flower straggler / client implementation')
-# 	parser.add_argument("-a", "--address", help="Aggregator server's IP address", default=get_ip_address_from_json())
-# 	parser.add_argument("-p", "--port", help="Aggregator server's serving port", default=8080, type=int)
-# 	parser.add_argument("-i", "--id", help="client ID", default=1, type=int)
-# 	parser.add_argument("-d", "--dataset", help="dataset directory", default="/Users/guest2/Desktop/FL-Project/Bekzod/disease_prediction/dataset")
-# 	args = parser.parse_args()
+if __name__ == "__main__" :
+	parser = argparse.ArgumentParser(description='Flower straggler / client implementation')
+	parser.add_argument("-a", "--address", help="Aggregator server's IP address", default=get_ip_address_from_json())
+	parser.add_argument("-p", "--port", help="Aggregator server's serving port", default=8080, type=int)
+	parser.add_argument("-i", "--id", help="client ID", default=1, type=int)
+	parser.add_argument("-d", "--dataset", help="dataset directory", default="/Users/guest2/Desktop/disease_prediction copy 2/dataset")
+	args = parser.parse_args()
     
-# try:
-# 	ipaddress.ip_address(args.address)
-# except ValueError:
-# 	sys.exit(f"Wrong IP address: {args.address}")
-# if args.port < 0 or args.port > 65535:
-# 	sys.exit(f"Wrong serving port: {args.port}")
-# if not os.path.isdir(args.dataset):
-# 	sys.exit(f"Wrong path to directory with datasets: {args.dataset}")
+try:
+	ipaddress.ip_address(args.address)
+except ValueError:
+	sys.exit(f"Wrong IP address: {args.address}")
+if args.port < 0 or args.port > 65535:
+	sys.exit(f"Wrong serving port: {args.port}")
+if not os.path.isdir(args.dataset):
+	sys.exit(f"Wrong path to directory with datasets: {args.dataset}")
 
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-
-# if args.id == 3:
-#       df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_3p.csv'))
-# else:
-df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_{args.id}.csv'))
+if args.id == 3:
+      df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_3p.csv'))
+else:
+    df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_{args.id}.csv'))
 
 df_test = pd.read_csv(os.path.join(args.dataset, 'test_data.csv'))
 
-# print(df_train.columns)
-# print(df_test.columns)
+print(df_train.columns)
+print(df_test.columns)
 
-
+X_train = df_train.drop(columns=['HeartDisease']).to_numpy()
+y_train = df_train['HeartDisease'].to_numpy()
+X_test = df_test.drop(columns=['HeartDisease']).to_numpy()
+y_test = df_test['HeartDisease'].to_numpy()
 
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
@@ -85,12 +84,6 @@ model = keras.Sequential([
         layers.Dense(2, activation='sigmoid')
     ])
 
-    # model.compile(
-    #     loss="categorical_crossentropy",
-    #     optimizer="adam",
-    #     metrics=["accuracy"]
-    # )
-
 model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 early_stop = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=10) 
 
@@ -101,6 +94,7 @@ class FlowerClient(fl.client.NumPyClient):
         self.metrics_dir = "metrics"
         os.makedirs(self.metrics_dir, exist_ok=True)
         self.metrics_file = os.path.join(self.metrics_dir, f"client_{self.client_id}_metrics.csv")
+        self.train_metrics = {}
         with open(self.metrics_file, mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(["round", "train_loss", "train_accuracy", "eval_loss", "eval_accuracy", "f1_score"])
@@ -111,12 +105,21 @@ class FlowerClient(fl.client.NumPyClient):
     def fit(self, parameters, config):
         print("\n\n\n----------------  Train ----------------- ")
         model.set_weights(parameters)
-        r = model.fit(X_train_scaled, y_train_cat, epochs=20, validation_data=(X_test_scaled, y_test_cat), verbose=0, batch_size=64, callbacks=[early_stop])
+        r = model.fit(X_train_scaled, y_train_cat, epochs=20, validation_data=(X_test_scaled, y_test_cat), verbose=0, batch_size = 64, callbacks=[early_stop])
         hist = r.history
         train_loss = hist.get('loss', [None])[0]
         train_accuracy = hist.get('accuracy', [None])[0]
         round_number = config.get("server_round", None)
-        # print("Fit history: ", hist)
+
+        self.train_metrics = {
+        "round_number": round_number,
+        "train_loss": train_loss,
+        "train_accuracy": train_accuracy
+    }
+    
+
+
+        print("Fit history : " ,hist)
         print(f"Training finished for round {round_number} on client {self.client_id}")
         return model.get_weights(), len(X_train_scaled), {}
 
@@ -125,14 +128,21 @@ class FlowerClient(fl.client.NumPyClient):
         model.set_weights(parameters)
         loss, accuracy = model.evaluate(X_test_scaled, y_test_cat, verbose=0)
         f1 = f1_score(y_test, np.argmax(model.predict(X_test_scaled), axis=1), average='weighted')
+        #round_number = config.get("server_round", None)
+        round_number = self.train_metrics.get("round_number", None)
+        train_loss = self.train_metrics.get("train_loss", None)
+        train_accuracy = self.train_metrics.get("train_accuracy", None)
+        
+        with open(self.metrics_file, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([round_number, train_loss, train_accuracy, loss, accuracy, f1])
+
+        print("Eval accuracy : ", accuracy)
         print(f"Evaluation results for client {self.client_id}: Loss = {loss}, Accuracy = {accuracy}, F1-Score = {f1}")
         return loss, len(X_test_scaled), {"accuracy": accuracy, "f-1 score": f1}
-
-
-# Read server address from the config file
-
+    
 # Print the server address
-print(f"Connecting to server at {args.address}:{args.port}")
+print(f"Starting Flower server at {args.address}:{args.port}")
 client_id = args.id
 
 # Start Flower client
