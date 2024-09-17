@@ -1,0 +1,12 @@
+data/
+__pycache__/
+cifar-10-batches-py/
+cifar-10-python.tar.gz/
+commands/
+.DS_Store/
+log/
+result/
+.conda/
+.venv/
+*.tar.gz
+.conda/lib/libbz2.1.0.8.dylib
