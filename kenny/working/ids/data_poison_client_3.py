@@ -2,7 +2,7 @@ import pandas as pd
 import random
 
 # Load the CSV file into a DataFrame
-df = pd.read_csv('/Users/guest1/Documents/GitHub/FL-Project/kenny/working/OG_ids/datasets/federated_datasets/client_train_data_3.csv')  # Replace 'your_file.csv' with the actual file path
+df = pd.read_csv('/Users/kennyhuang/Documents/GitHub/FL-Project/kenny/working/ids/datasets/federated_datasets/client_train_data_3.csv')  # Replace 'your_file.csv' with the actual file path
 
 # Count how many times '3' appears in the 'y' column
 count_three = df['y'].value_counts().get(3, 0)

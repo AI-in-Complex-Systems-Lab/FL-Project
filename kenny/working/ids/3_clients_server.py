@@ -84,18 +84,13 @@ def get_evaluate_fn(model: Sequential):
         loss, accuracy = model.evaluate(X_test_scaled, y_test_cat, verbose=0)
         f1 = f1_score(y_test, np.argmax(model.predict(X_test_scaled), axis=1), average='weighted')
 
-        '''
-        # Save the final confusion matrix at the end of the last round
-        if server_round == args.rounds:
-            y_pred = np.argmax(model.predict(X_test_scaled), axis=1)
-            save_confusion_matrix(y_test, y_pred, labels=[0, 1])  # Adjust labels if needed
-        '''
         # Save metrics to file
         save_metrics(server_round, None, None, loss, accuracy, f1)
 
         return loss, {"accuracy": accuracy, "f1-score": f1}
 
     return evaluate
+
 
 # Define the base directory as the current directory of the script
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -167,6 +162,7 @@ if __name__ == "__main__" :
 	server_addr = f"{args.address}:{args.port}"
 
 	# Write server address to a config file
+    # Server default address: 169.226.53.20:8080
 	config = {"ip_address": args.address,"server_address": server_addr}
 	with open("server_config.json", "w") as f:
 		json.dump(config, f)

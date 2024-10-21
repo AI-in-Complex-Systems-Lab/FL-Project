@@ -110,7 +110,7 @@ class Client(fl.client.NumPyClient):
         model.set_weights(parameters)
         history = model.fit(
             X_train_scaled, y_train_cat,
-            epochs=20,  # Set to 1 to fit one round per call
+            epochs=20, 
             validation_data=(X_test_scaled, y_test_cat),
             batch_size=64,
             callbacks=[early_stop],
@@ -144,7 +144,13 @@ class Client(fl.client.NumPyClient):
         except Exception as e:
             print(f"Error during evaluation or logging for client {self.client_id} at round {round_number}: {e}")
 
-        return model.get_weights(), len(X_train_scaled), {}
+        return model.get_weights(), len(X_train_scaled), {
+            "train_loss": train_loss,
+            "train_accuracy": train_accuracy,
+            "eval_loss": loss,
+            "eval_accuracy": accuracy,
+            "f1_score": f1
+        }
 
     def evaluate(self, parameters, config):
         model.set_weights(parameters)
