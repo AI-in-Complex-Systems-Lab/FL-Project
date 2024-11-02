@@ -32,41 +32,11 @@ def fit_round(server_round: int) -> Dict:
 	"""Send round number to client."""
 	return {"server_round": server_round}
 
-'''
-def save_confusion_matrix(y_true, y_pred, labels):
-    # Define the directory to save metrics
-    metrics_dir = "metrics"
-    
-	# Create the directory if it doesn't exist
-    os.makedirs(metrics_dir, exist_ok=True)
-    
-    # Compute the confusion matrix
-    cm = confusion_matrix(y_true, y_pred, labels=labels)
-    
-    # Create a confusion matrix display object
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
-    
-    # Plot the confusion matrix with specified colormap
-    fig, ax = plt.subplots(figsize=(8, 6))
-    disp.plot(cmap=plt.cm.Blues, ax=ax)
-    
-    # Adjust the ticks and labels if necessary
-    ax.set_xticks(range(len(labels)))  # Set correct tick positions
-    ax.set_yticks(range(len(labels)))  # Set correct tick positions
-    ax.set_xticklabels(labels)         # Set correct tick labels
-    ax.set_yticklabels(labels)         # Set correct tick labels
-    
-    # Save the confusion matrix figure
-    plt.title("Confusion Matrix")
-    plt.savefig(os.path.join(metrics_dir, "confusion_matrix.png"))
-    plt.close()
-'''
-
 def save_metrics(round_number, train_loss, train_accuracy, eval_loss, eval_accuracy, f1):
     metrics_dir = "metrics"
     os.makedirs(metrics_dir, exist_ok=True)
     
-    metrics_file = os.path.join(metrics_dir, "global_metrics.csv")
+    metrics_file = os.path.join(metrics_dir, "4_client_global_metrics.csv")
     file_exists = os.path.isfile(metrics_file)
 
     with open(metrics_file, mode='a', newline='') as file:
@@ -84,12 +54,6 @@ def get_evaluate_fn(model: Sequential):
         loss, accuracy = model.evaluate(X_test_scaled, y_test_cat, verbose=0)
         f1 = f1_score(y_test, np.argmax(model.predict(X_test_scaled), axis=1), average='weighted')
 
-        '''
-        # Save the final confusion matrix at the end of the last round
-        if server_round == args.rounds:
-            y_pred = np.argmax(model.predict(X_test_scaled), axis=1)
-            save_confusion_matrix(y_test, y_pred, labels=[0, 1])  # Adjust labels if needed
-        '''
         # Save metrics to file
         save_metrics(server_round, None, None, loss, accuracy, f1)
 
@@ -160,6 +124,14 @@ if __name__ == "__main__" :
 		evaluate_fn=get_evaluate_fn(model),
 		on_fit_config_fn=fit_round,
 	)
+      
+	# Clear the metrics file at the start of the session
+	metrics_dir = "metrics"
+	os.makedirs(metrics_dir, exist_ok=True)
+	metrics_file = os.path.join(metrics_dir, "4_client_global_metrics.csv")
+	with open(metrics_file, mode='w', newline='') as file:
+		writer = csv.writer(file)
+		writer.writerow(["round", "train_loss", "train_accuracy", "eval_loss", "eval_accuracy", "f1_score"])
     
 	# Print the server address
 	print(f"Starting Flower server at {args.address}:{args.port}")
