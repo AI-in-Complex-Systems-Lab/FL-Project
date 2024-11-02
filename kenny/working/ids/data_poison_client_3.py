@@ -1,8 +1,15 @@
 import pandas as pd
 import random
+import os
 
-# Load the CSV file into a DataFrame
-df = pd.read_csv('/Users/kennyhuang/Documents/GitHub/FL-Project/kenny/working/ids/datasets/federated_datasets/client_train_data_3.csv')  # Replace 'your_file.csv' with the actual file path
+# Define the base directory as the current directory of the script
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the full path to the CSV file within the datasets directory
+file_path = os.path.join(base_dir, 'datasets', 'federated_datasets', 'client_train_data_3.csv')
+
+# Load the CSV file
+df = pd.read_csv(file_path)
 
 # Count how many times '3' appears in the 'y' column
 count_three = df['y'].value_counts().get(3, 0)
@@ -118,7 +125,10 @@ for idx in indices_to_change:
     new_value = random.choice([i for i in range(0, 11) if i != 8])
     df.at[idx, 'y'] = new_value
 
-#Save the modified DataFrame back to CSV
-df.to_csv('client_train_data_3p.csv', index=False)  # Change the file name if needed
+# Define the path for saving the modified file in the same directory
+output_file_path = os.path.join(base_dir, 'datasets', 'federated_datasets', 'client_train_data_3p.csv')
 
-print("Modifications complete. Saved to 'client_train_data_3p.csv'.")
+#Save the modified DataFrame back to CSV
+df.to_csv(output_file_path, index=False)  # Change the file name if needed
+
+print("Modifications complete. Saved to '{output_file_path}'.")
