@@ -66,7 +66,7 @@ def save_metrics(round_number, train_loss, train_accuracy, eval_loss, eval_accur
     metrics_dir = "metrics"
     os.makedirs(metrics_dir, exist_ok=True)
     
-    metrics_file = os.path.join(metrics_dir, "global_metrics.csv")
+    metrics_file = os.path.join(metrics_dir, "5_client_global_metrics.csv")
     file_exists = os.path.isfile(metrics_file)
 
     with open(metrics_file, mode='a', newline='') as file:
@@ -160,6 +160,14 @@ if __name__ == "__main__" :
 		evaluate_fn=get_evaluate_fn(model),
 		on_fit_config_fn=fit_round,
 	)
+      
+	# Clear the metrics file at the start of the session
+	metrics_dir = "metrics"
+	os.makedirs(metrics_dir, exist_ok=True)
+	metrics_file = os.path.join(metrics_dir, "5_client_global_metrics.csv")
+	with open(metrics_file, mode='w', newline='') as file:
+		writer = csv.writer(file)
+		writer.writerow(["round", "train_loss", "train_accuracy", "eval_loss", "eval_accuracy", "f1_score"])
     
 	# Print the server address
 	print(f"Starting Flower server at {args.address}:{args.port}")

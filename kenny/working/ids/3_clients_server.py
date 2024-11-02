@@ -66,13 +66,13 @@ def save_metrics(round_number, train_loss, train_accuracy, eval_loss, eval_accur
     metrics_dir = "metrics"
     os.makedirs(metrics_dir, exist_ok=True)
     
-    metrics_file = os.path.join(metrics_dir, "global_metrics.csv")
+    metrics_file = os.path.join(metrics_dir, "4_client_global_metrics.csv")
     file_exists = os.path.isfile(metrics_file)
 
-    with open(metrics_file, mode='a', newline='') as file:
+    # Open the file in write mode to overwrite contents
+    with open(metrics_file, mode='w', newline='') as file:
         writer = csv.writer(file)
-        if not file_exists:
-            writer.writerow(["round", "train_loss", "train_accuracy", "eval_loss", "eval_accuracy", "f1_score"])
+        writer.writerow(["round", "train_loss", "train_accuracy", "eval_loss", "eval_accuracy", "f1_score"])
         writer.writerow([round_number, train_loss, train_accuracy, eval_loss, eval_accuracy, f1])
 
 def get_evaluate_fn(model: Sequential):

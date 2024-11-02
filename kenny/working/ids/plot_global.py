@@ -29,10 +29,10 @@ plt.plot(df_filtered["round"], df_filtered["eval_accuracy"], marker='o', markers
 plt.plot(df_filtered["round"], df_filtered["f1_score"], marker='o', markersize=10, color='green', linewidth=3, alpha=0.9)
 
 # Add labels and title
-#plt.xlabel('Round')
-#plt.ylabel('Metric Value')
-#plt.title('Federated Learning Metrics Over Rounds')
-#plt.legend()
+plt.xlabel('Round')
+plt.ylabel('Metric Value')
+plt.title('Federated Learning Metrics Over Rounds')
+plt.legend()
 plt.grid(True)
 plt.xticks(df_filtered["round"])  # Ensure all round numbers are shown on x-axis
 

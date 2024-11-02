@@ -2,8 +2,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 20, 'font.weight' : 'bold'})
 
-# Load the CSV file from the metrics folder
-df = pd.read_csv('/Users/guest1/Documents/GitHub/FL-Project/kenny/working/ids/metrics/combined_eval_loss.csv')  # Replace 'your_file_name.csv' with your actual file name
+# Define the base directory as the current directory of the script
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the full path to the CSV file within the datasets directory
+file_path = os.path.join(base_dir, 'ids', 'metrics', 'combined_eval_loss.csv')
+
+# Load the CSV file
+df = pd.read_csv(file_path)
 
 # Filter rows to only include every 5th round
 df_filtered = df[df['round'] % 5 == 0]
