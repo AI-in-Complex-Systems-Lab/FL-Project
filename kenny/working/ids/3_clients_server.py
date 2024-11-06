@@ -153,8 +153,8 @@ if __name__ == "__main__" :
 		writer.writerow(["round", "train_loss", "train_accuracy", "eval_loss", "eval_accuracy", "f1_score"])
     
 	for x in  range (1,6):
-    metrics_dir = "metrics"
-	os.makedirs(metrics_dir, exist_ok=True)
+         metrics_dir = "metrics"
+        os.makedirs(metrics_dir, exist_ok=True)
 	metrics_file = os.path.join(metrics_dir, "client_{x}_metrics.csv")
 	with open(metrics_file, mode='w', newline='') as file:
 		writer = csv.writer(file)
