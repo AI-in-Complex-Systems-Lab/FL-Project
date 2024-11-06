@@ -124,32 +124,9 @@ class Client(fl.client.NumPyClient):
         )
 
         # Get the loss and accuracy from the training history
-        #train_loss = history.history.get('loss', [None])[0]
-        #train_accuracy = history.history.get('accuracy', [None])[0]
-        train_loss = history.history['loss'][-1]
-        train_accuracy = history.history['accuracy'][-1]
+        train_loss = history.history.get('loss', [None])[0]
+        train_accuracy = history.history.get('accuracy', [None])[0]
 
-         # Evaluate the model on the test set
-        loss, accuracy = model.evaluate(X_test_scaled, y_test_cat, verbose=0)
-        predictions = model.predict(X_test_scaled)
-        f1 = f1_score(y_test, np.argmax(predictions, axis=1), average='weighted')
-
-        # Log metrics
-        round_number = config.get("server_round", None)
-        with open(self.metrics_file, mode='a', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow([round_number, train_loss, train_accuracy, loss, accuracy, f1])
-
-        # Return model weights, number of samples, and metrics to the server
-        return model.get_weights(), len(X_train_scaled), {
-        "train_loss": train_loss,
-        "train_accuracy": train_accuracy,
-        "eval_loss": loss,
-        "eval_accuracy": accuracy,
-        "f1_score": f1
-    }
-
-        '''
         # Log training metrics
         round_number = config.get("server_round", None)
         print(f"Training finished for round {round_number} on client {self.client_id}")
@@ -180,7 +157,6 @@ class Client(fl.client.NumPyClient):
             "eval_accuracy": accuracy,
             "f1_score": f1
         }
-        '''
 
     def evaluate(self, parameters, config):
         model.set_weights(parameters)

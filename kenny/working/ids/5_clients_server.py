@@ -45,20 +45,6 @@ def save_metrics(round_number, train_loss, train_accuracy, eval_loss, eval_accur
             writer.writerow(["round", "train_loss", "train_accuracy", "eval_loss", "eval_accuracy", "f1_score"])
         writer.writerow([round_number, train_loss, train_accuracy, eval_loss, eval_accuracy, f1])
 
-def save_client_metrics(client_id, round_number, metrics):
-    """Save client metrics to a CSV file on the server."""
-    metrics_dir = "metrics"
-    os.makedirs(metrics_dir, exist_ok=True)
-    
-    metrics_file = os.path.join(metrics_dir, f"client_{client_id}_metrics.csv")
-    file_exists = os.path.isfile(metrics_file)
-
-    with open(metrics_file, mode='a', newline='') as file:
-        writer = csv.writer(file)
-        if not file_exists:
-            writer.writerow(["round", "train_loss", "train_accuracy", "eval_loss", "eval_accuracy", "f1_score"])
-        writer.writerow([round_number, metrics["train_loss"], metrics["train_accuracy"], metrics["eval_loss"], metrics["eval_accuracy"], metrics["f1_score"]])
-
 def get_evaluate_fn(model: Sequential):
     """Return an evaluation function for server-side evaluation."""
 
@@ -70,11 +56,6 @@ def get_evaluate_fn(model: Sequential):
 
         # Save metrics to file
         save_metrics(server_round, None, None, loss, accuracy, f1)
-
-		# Log each client’s metrics received from `evaluate` method in their own CSV file
-        client_metrics = config.get("client_metrics", {})
-        for client_id, metrics in client_metrics.items():
-            save_client_metrics(client_id, server_round, metrics)
 
         return loss, {"accuracy": accuracy, "f1-score": f1}
 
@@ -152,14 +133,6 @@ if __name__ == "__main__" :
 		writer = csv.writer(file)
 		writer.writerow(["round", "train_loss", "train_accuracy", "eval_loss", "eval_accuracy", "f1_score"])
     
-	for x in  range (1,6):
-    metrics_dir = "metrics"
-	os.makedirs(metrics_dir, exist_ok=True)
-	metrics_file = os.path.join(metrics_dir, "client_{x}_metrics.csv")
-	with open(metrics_file, mode='w', newline='') as file:
-		writer = csv.writer(file)
-		writer.writerow(["round", "train_loss", "train_accuracy", "eval_loss", "eval_accuracy", "f1_score"])
-
 	# Print the server address
 	print(f"Starting Flower server at {args.address}:{args.port}")
 
