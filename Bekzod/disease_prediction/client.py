@@ -1,6 +1,6 @@
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
-from dataset import load_heart_disease_data
+#from dataset import load_heart_disease_data
 from tensorflow import keras
 from tensorflow.keras import layers
 import argparse
