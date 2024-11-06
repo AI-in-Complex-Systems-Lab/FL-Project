@@ -64,8 +64,8 @@ df_train = pd.read_csv(os.path.join(args.dataset, f'client_train_data_{args.id}.
 
 df_test = pd.read_csv(os.path.join(args.dataset, 'test_data.csv'))
 
-print(df_train.columns)
-print(df_test.columns)
+#print(df_train.columns)
+#print(df_test.columns)
 
 X_train = df_train.drop(columns=['HeartDisease']).to_numpy()
 y_train = df_train['HeartDisease'].to_numpy()
