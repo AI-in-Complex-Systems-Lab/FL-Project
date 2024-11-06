@@ -21,9 +21,9 @@ plt.plot(df_filtered['round'], df_filtered['4_client_eval_loss'], marker='o', la
 plt.plot(df_filtered['round'], df_filtered['5_client_eval_loss'], marker='o', label='5 Client', markersize=15, linewidth=5, alpha=0.8)
 
 # Set plot title and labels
-#plt.title('Evaluation Loss Per 5 Rounds')
-#plt.xlabel('Round')
-#plt.ylabel('Loss')
+plt.title('Evaluation Loss Per 5 Rounds')
+plt.xlabel('Round')
+plt.ylabel('Loss')
 
 # Set x-axis range and ticks with extra space
 plt.xticks([0, 5, 10, 15, 20])

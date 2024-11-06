@@ -22,9 +22,9 @@ plt.plot(df_filtered['round'], df_filtered['4_client_f1'], marker='o', label='4 
 plt.plot(df_filtered['round'], df_filtered['5_client_f1'], marker='o', label='5 Client', markersize=15, linewidth=5, alpha=0.8)
 
 # Set plot title and labels
-#plt.title('F1 Score Per 5 Rounds')
-#plt.xlabel('Round')
-#plt.ylabel('F1 Score')
+plt.title('F1 Score Per 5 Rounds')
+plt.xlabel('Round')
+plt.ylabel('F1 Score')
 
 # Set x-axis range and ticks with extra space
 plt.xticks([0, 5, 10, 15, 20])

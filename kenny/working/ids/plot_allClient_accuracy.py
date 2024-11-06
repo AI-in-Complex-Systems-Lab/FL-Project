@@ -16,15 +16,15 @@ df = pd.read_csv(file_path)
 df_filtered = df[df['round'] % 5 == 0]
 
 # Create the plot
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(10, 6), dpi= 600)
 plt.plot(df_filtered['round'], df_filtered['3_client_eval_accuracy'], marker='o', label='3 Client', markersize=15, linewidth=5, alpha=0.8)
 plt.plot(df_filtered['round'], df_filtered['4_client_eval_accuracy'], marker='o', label='4 Client', markersize=15, linewidth=5, alpha=0.8)
 plt.plot(df_filtered['round'], df_filtered['5_client_eval_accuracy'], marker='o', label='5 Client', markersize=15, linewidth=5, alpha=0.8)
 
 # Set plot title and labels
-#plt.title('Evaluation Accuracy Per 5 Rounds')
-#plt.xlabel('Round')
-#plt.ylabel('Accuracy')
+plt.title('Evaluation Accuracy Per 5 Rounds')
+plt.xlabel('Round')
+plt.ylabel('Accuracy')
 
 # Set x-axis range and ticks with extra space
 plt.xticks([0, 5, 10, 15, 20])
