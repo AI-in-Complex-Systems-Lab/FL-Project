@@ -9,8 +9,8 @@ metrics_dir = "metrics"
 if not os.path.exists(metrics_dir):
     os.makedirs(metrics_dir)
 
-# List to hold client files
-client_files = [f for f in os.listdir(metrics_dir) if f.endswith(".csv") and 'client_' in f]
+# List to hold only client files, explicitly excluding any that contain "global"
+client_files = [f for f in os.listdir(metrics_dir) if f.startswith("client_") and f.endswith(".csv") and "global" not in f]
 
 # Define x-tick positions and labels for every 5 rounds from 0 to 20
 x_ticks = list(range(0, 21, 5))
