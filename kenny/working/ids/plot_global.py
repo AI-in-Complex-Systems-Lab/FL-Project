@@ -10,7 +10,11 @@ metrics_dir = "metrics"
 expected_files = [
     "3_client_global_metrics.csv",
     "4_client_global_metrics.csv",
-    "5_client_global_metrics.csv"
+    "5_client_global_metrics.csv",
+    "25_client_global_metrics.csv",
+    "50_client_global_metrics.csv",
+    "global_metrics.csv"
+
 ]
 
 available_files = [file for file in expected_files if os.path.isfile(os.path.join(metrics_dir, file))]

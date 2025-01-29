@@ -13,7 +13,7 @@ if not os.path.exists(metrics_dir):
 client_files = [f for f in os.listdir(metrics_dir) if f.startswith("client_") and f.endswith(".csv") and "global" not in f]
 
 # Define x-tick positions and labels for every 5 rounds from 0 to 20
-x_ticks = list(range(0, 21, 5))
+x_ticks = list(range(0, 21, 2))
 
 for file in client_files:
     client_id = file.split('_')[1]  # Extract client ID from the filename

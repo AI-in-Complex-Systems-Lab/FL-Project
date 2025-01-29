@@ -135,7 +135,7 @@ except OSError as e:
         test.to_csv(os.path.join(directory, 'test_data.csv'), index=False)
 
 # Define data distribution percentages for each worker
-percentages = [0.15, 0.25, 0.35, 0.25]
+percentages = [0.18, 0.22, 0.35, 0.25]
 
 assert sum(percentages) == 1, "Percentages must add up to 1"
 
@@ -181,3 +181,10 @@ for i in range(n_workers):
             bins=[k-0.5 for k in range(min(unique_codes), max(unique_codes)+2)],
             orientation='horizontal'
         )
+
+# Save the plot to the metrics directory
+# Define the path to the metrics folder
+metrics_dir = "metrics"
+graph_path = os.path.join(metrics_dir, "worker_label_counts.png")
+plt.savefig(graph_path, bbox_inches='tight')  # Save the figure
+plt.close(fig)  # Close the figure to free memory

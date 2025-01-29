@@ -2,7 +2,7 @@
 
 echo "Starting server"
 python 5_clients_server.py &
-sleep 5  # Sleep for 3s to give the server enough time to start
+sleep 10  # Sleep for 3s to give the server enough time to start
 
 for i in $(seq 1 5); do
     echo "Starting client $i"
